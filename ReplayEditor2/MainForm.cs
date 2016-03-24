@@ -30,7 +30,6 @@ namespace ReplayEditor2
         public Canvas Canvas { get; set; }
         public MetadataEditor.MetadataForm MetadataForm { get; set; }
         public OsuDbAPI.OsuDbFile OsuDbFile { get; set; }
-        private string titlePostfix = "";
 
         public MainForm()
         {
@@ -238,12 +237,10 @@ namespace ReplayEditor2
             if (beatmapPath.Length > 0)
             {
                 this.Canvas.Beatmap = new BMAPI.v1.Beatmap(beatmapPath);
-                this.titlePostfix = String.Format("playing:  {0} - {1} [{2}] (mapped by {3})", this.Canvas.Beatmap.Artist, this.Canvas.Beatmap.Title, this.Canvas.Beatmap.Version, this.Canvas.Beatmap.Creator);
             }
             else
             {
                 this.Canvas.Beatmap = null;
-                this.titlePostfix = "playing an unknown map";
                 MainForm.ErrorMessage("Could not locate .osu file.");
             }
             this.UpdateTitle();
@@ -254,6 +251,7 @@ namespace ReplayEditor2
                 eax[0] = '*';
                 this.GetReplayRadioBtn(this.Canvas.State_ReplaySelected).Text = new string(eax);
             }
+            this.volumeBar_Scroll(null, null);
         }
 
         public void UpdateTitle()
@@ -263,7 +261,18 @@ namespace ReplayEditor2
             {
                 playerName = this.CurrentReplays[this.Canvas.State_ReplaySelected].PlayerName;
             }
-            this.Text = playerName + " " + this.titlePostfix;
+            if (this.Canvas.Beatmap == null)
+            {
+                this.Text = playerName + " playing:  an unknown map";
+                this.replayInfoLabel.Text = "Player:  " + playerName;
+            }
+            else
+            {
+                this.Text = String.Format("{0} playing:  {1} - {2} [{3}] (mapped by {4})", playerName, this.Canvas.Beatmap.Artist, this.Canvas.Beatmap.Title, this.Canvas.Beatmap.Version, this.Canvas.Beatmap.Creator);
+                this.replayInfoLabel.Text = String.Format("{0} playing:\n{1} - {2} [{3}]\n(mapped by {4})", playerName, this.Canvas.Beatmap.Artist, this.Canvas.Beatmap.Title, this.Canvas.Beatmap.Version, this.Canvas.Beatmap.Creator);
+            }
+            Microsoft.Xna.Framework.Color c = Canvas.Color_Cursor[this.Canvas.State_ReplaySelected];
+            this.cursorColorPanel.BackColor = System.Drawing.Color.FromArgb(c.R, c.G, c.B);
         }
 
         public RadioButton GetReplayRadioBtn(int n)

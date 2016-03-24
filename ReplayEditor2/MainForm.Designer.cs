@@ -59,7 +59,9 @@
             this.volumeBar = new System.Windows.Forms.TrackBar();
             this.label4 = new System.Windows.Forms.Label();
             this.volumeBarLabel = new System.Windows.Forms.Label();
+            this.cursorColorPanel = new System.Windows.Forms.Panel();
             this.timeline = new ReplayEditor2.Timeline();
+            this.replayInfoLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.timeWindowBar)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
@@ -415,6 +417,16 @@
             this.volumeBarLabel.Text = "100 %";
             this.volumeBarLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // cursorColorPanel
+            // 
+            this.cursorColorPanel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.cursorColorPanel.BackColor = System.Drawing.Color.Red;
+            this.cursorColorPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.cursorColorPanel.Location = new System.Drawing.Point(529, 13);
+            this.cursorColorPanel.Name = "cursorColorPanel";
+            this.cursorColorPanel.Size = new System.Drawing.Size(36, 36);
+            this.cursorColorPanel.TabIndex = 25;
+            // 
             // timeline
             // 
             this.timeline.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -426,12 +438,22 @@
             this.timeline.Value = 0F;
             this.timeline.MouseClick += new System.Windows.Forms.MouseEventHandler(this.timeline_MouseClick);
             // 
+            // replayInfoLabel
+            // 
+            this.replayInfoLabel.AutoSize = true;
+            this.replayInfoLabel.Location = new System.Drawing.Point(571, 13);
+            this.replayInfoLabel.Name = "replayInfoLabel";
+            this.replayInfoLabel.Size = new System.Drawing.Size(0, 13);
+            this.replayInfoLabel.TabIndex = 26;
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 729);
+            this.Controls.Add(this.replayInfoLabel);
+            this.Controls.Add(this.cursorColorPanel);
             this.Controls.Add(this.volumeBarLabel);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.volumeBar);
@@ -499,6 +521,8 @@
         private System.Windows.Forms.TrackBar volumeBar;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label volumeBarLabel;
+        private System.Windows.Forms.Panel cursorColorPanel;
+        private System.Windows.Forms.Label replayInfoLabel;
 
 
 

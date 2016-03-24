@@ -207,12 +207,14 @@ namespace ReplayEditor2
         {
             this.nodeTexture.Dispose();
             this.cursorTexture.Dispose();
-            this.lineTexture.Dispose();
             this.hitCircleTexture.Dispose();
             this.sliderFollowCircleTexture.Dispose();
             this.spinnerTexture.Dispose();
             this.approachCircleTexture.Dispose();
             this.helpTexture.Dispose();
+            this.sliderEdgeTexture.Dispose();
+            this.sliderBodyTexture.Dispose();
+            this.lineTexture.Dispose();
         }
 
         protected override void Update(GameTime gameTime)
