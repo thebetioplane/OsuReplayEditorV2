@@ -4,6 +4,12 @@ using System.Linq;
 
 namespace BMAPI.v1.HitObjects
 {
+    internal struct DistanceTime
+    {
+        public float distance;
+        public float t;
+        public Point2 point;
+    }
     public class SliderObject : CircleObject
     {
         public SliderObject() { }
@@ -14,7 +20,7 @@ namespace BMAPI.v1.HitObjects
         public int RepeatCount { get; set; }
         public float Velocity { get; set; }
         public float MaxPoints { get; set; }
-
+        private List<DistanceTime> distanceTime = new List<DistanceTime>();
         private float? S_Length { get; set; }
         private float? S_SegmentLength { get; set; }
         public float Length
@@ -87,25 +93,17 @@ namespace BMAPI.v1.HitObjects
             switch (Type)
             {
                 case SliderType.Linear:
-                    return LinInterpolate(Points[0], Points[1], T);
+                    return Points[0].Lerp(Points[1], T);
                 case SliderType.CSpline:
                 case SliderType.PSpline:
                     Spline spl = new Spline(Points);
                     return SplInterpolate(spl, T);
                 case SliderType.Bezier:
-                    return BezUniformVelocity(Points, T);
+                    return BezUniformVelocity(Points, this.Length / this.RepeatCount * T);
                 default:
                     return new Point2();
             }
         }
-
-        // Linear Interpolation
-        public Point2 LinInterpolate(Point2 P1, Point2 P2, float T)
-        {
-            //("p1 = {0}, p2 = {1}, T = {2}", P1, P2, T);
-            return new Point2((1 - T) * P1.X + T * P2.X, (1 - T) * P1.Y + T * P2.Y);
-        }
-        
 
         // Spline Interpolation
         public class Spline : List<SplineFunction>
@@ -237,9 +235,36 @@ namespace BMAPI.v1.HitObjects
             return points[0];
         }
 
-        public Point2 BezUniformVelocity(List<Point2> points, float t)
+        public Point2 BezUniformVelocity(List<Point2> points, float target)
         {
-            return BezInterpolate(points, t);
+            int high = this.distanceTime.Count - 1;
+            int low = 0;
+            while (low <= high)
+            {
+                int mid = (high + low) / 2;
+                if (mid == high || mid == low)
+                {
+                    if (mid + 1 >= this.distanceTime.Count)
+                    {
+                        return this.distanceTime[mid].point;
+                    }
+                    else
+                    {
+                        DistanceTime a = this.distanceTime[mid];
+                        DistanceTime b = this.distanceTime[mid + 1];
+                        return a.point.Lerp(b.point, (target - a.distance) / (b.distance - a.distance));
+                    }
+                }
+                if (this.distanceTime[mid].distance > target)
+                {
+                    high = mid;
+                }
+                else
+                {
+                    low = mid;
+                }
+            }
+            return new Point2();
         }
         
         public float BezierLength(List<Point2> Pts, float prec = 0.01f)
@@ -250,7 +275,12 @@ namespace BMAPI.v1.HitObjects
                 Point2 a = BezInterpolate(Pts, f);
                 Point2 b = BezInterpolate(Pts, f + prec);
                 float distance = (float)Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
+                DistanceTime dt = new DistanceTime();
                 sum += distance;
+                dt.distance = sum;
+                dt.t = f;
+                dt.point = b;
+                this.distanceTime.Add(dt);
             }
             return sum;
         }
@@ -259,6 +289,7 @@ namespace BMAPI.v1.HitObjects
         {
             return ContainsPoint(Point, 0);
         }
+
         public bool ContainsPoint(Point2 Point, int Time)
         {
             Point2 pAtTime = PositionAtTime(Time);

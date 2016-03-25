@@ -538,7 +538,6 @@ namespace ReplayEditor2
 
         private void DrawSliderBody(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha)
         {
-            // see method declaration for explanation
             this.DrawBezierCurvePath(hitObject, alpha, this.circleDiameter / 2);
 
             float time = (float)(this.songPlayer.SongTime - hitObject.StartTime) / (float)(hitObject.SegmentEndTime(1) - hitObject.StartTime);
@@ -561,20 +560,19 @@ namespace ReplayEditor2
 
         private void DrawBezierCurvePath(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha, int radius)
         {
-            for (int i = 0; i < this.State_CurveSmoothness; i++)
+            float smallLength = hitObject.Length / hitObject.RepeatCount;
+            for (int i = 0; i < smallLength + 10; i += 10)
             {
-                float t = i / (float)this.State_CurveSmoothness;
-                Vector2 pos = this.InflateVector(hitObject.PositionAtTime(t).ToVector2(), true);
+                Vector2 pos = this.InflateVector(hitObject.BezUniformVelocity(hitObject.Points, i).ToVector2(), true);
                 int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                 Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                 rect.X -= rect.Width / 2;
                 rect.Y -= rect.Height / 2;
                 this.spriteBatch.Draw(this.sliderEdgeTexture, rect, new Color(1.0f, 1.0f, 1.0f, alpha));
             }
-            for (int i = 0; i < this.State_CurveSmoothness; i++)
+            for (int i = 0; i < smallLength + 10; i += 10)
             {
-                float t = i / (float)this.State_CurveSmoothness;
-                Vector2 pos = this.InflateVector(hitObject.PositionAtTime(t).ToVector2(), true);
+                Vector2 pos = this.InflateVector(hitObject.BezUniformVelocity(hitObject.Points, i).ToVector2(), true);
                 int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                 Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                 rect.X -= rect.Width / 2;

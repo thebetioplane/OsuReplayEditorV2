@@ -109,5 +109,9 @@ namespace BMAPI
         {
             return new Vector2(this.X, this.Y);
         }
+        public Point2 Lerp(Point2 other, float t)
+        {
+            return this + (other - this) * t;
+        }
     }
 }
