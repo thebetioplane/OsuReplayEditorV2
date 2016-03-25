@@ -372,7 +372,7 @@ namespace ReplayEditor2
                     }
                     else if (hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Slider))
                     {
-                        this.DrawSliderBody(hitObjectAsSlider, alpha);
+                        this.DrawSlider(hitObjectAsSlider, alpha);
                         this.DrawHitcircle(hitObject, alpha);
                         this.DrawApproachCircle(hitObject, alpha, approachCircleValue);
                     }
@@ -536,9 +536,9 @@ namespace ReplayEditor2
             this.spriteBatch.Draw(this.spinnerTexture, rect, new Color(1.0f, 1.0f, 1.0f, alpha));
         }
 
-        private void DrawSliderBody(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha)
+        private void DrawSlider(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha)
         {
-            this.DrawBezierCurvePath(hitObject, alpha, this.circleDiameter / 2);
+            this.DrawSliderBody(hitObject, alpha, this.circleDiameter / 2);
 
             float time = (float)(this.songPlayer.SongTime - hitObject.StartTime) / (float)(hitObject.SegmentEndTime(1) - hitObject.StartTime);
             if (time < 0)
@@ -558,26 +558,59 @@ namespace ReplayEditor2
             this.spriteBatch.Draw(this.sliderFollowCircleTexture, rect, new Color(1.0f, 1.0f, 1.0f, alpha));
         }
 
-        private void DrawBezierCurvePath(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha, int radius)
+        private void DrawSliderBody(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha, int radius)
         {
             float smallLength = hitObject.Length / hitObject.RepeatCount;
-            for (int i = 0; i < smallLength + 10; i += 10)
+            Color color = Color.White;
+            if (hitObject.Type == BMAPI.v1.SliderType.PSpline || hitObject.Type == BMAPI.v1.SliderType.CSpline)
             {
-                Vector2 pos = this.InflateVector(hitObject.BezUniformVelocity(hitObject.Points, i).ToVector2(), true);
-                int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
-                Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
-                rect.X -= rect.Width / 2;
-                rect.Y -= rect.Height / 2;
-                this.spriteBatch.Draw(this.sliderEdgeTexture, rect, new Color(1.0f, 1.0f, 1.0f, alpha));
+                color = Color.Red;
             }
-            for (int i = 0; i < smallLength + 10; i += 10)
+            color.A = (byte)(255 * alpha);
+
+            if (hitObject.Type == BMAPI.v1.SliderType.Bezier)
             {
-                Vector2 pos = this.InflateVector(hitObject.BezUniformVelocity(hitObject.Points, i).ToVector2(), true);
-                int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
-                Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
-                rect.X -= rect.Width / 2;
-                rect.Y -= rect.Height / 2;
-                this.spriteBatch.Draw(this.sliderBodyTexture, rect, new Color(1.0f, 1.0f, 1.0f, 1.0f));
+                for (int i = 0; i < smallLength + 10; i += 10)
+                {
+                    Vector2 pos = this.InflateVector(hitObject.BezUniformVelocity(hitObject.Points, i).ToVector2(), true);
+                    int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
+                    Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
+                    rect.X -= rect.Width / 2;
+                    rect.Y -= rect.Height / 2;
+                    this.spriteBatch.Draw(this.sliderEdgeTexture, rect, color);
+                }
+                for (int i = 0; i < smallLength + 10; i += 10)
+                {
+                    Vector2 pos = this.InflateVector(hitObject.BezUniformVelocity(hitObject.Points, i).ToVector2(), true);
+                    int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
+                    Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
+                    rect.X -= rect.Width / 2;
+                    rect.Y -= rect.Height / 2;
+                    color.A = 255;
+                    this.spriteBatch.Draw(this.sliderBodyTexture, rect, color);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < smallLength + 10; i += 10)
+                {
+                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
+                    int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
+                    Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
+                    rect.X -= rect.Width / 2;
+                    rect.Y -= rect.Height / 2;
+                    this.spriteBatch.Draw(this.sliderEdgeTexture, rect, color);
+                }
+                for (int i = 0; i < smallLength + 10; i += 10)
+                {
+                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
+                    int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
+                    Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
+                    rect.X -= rect.Width / 2;
+                    rect.Y -= rect.Height / 2;
+                    color.A = 255;
+                    this.spriteBatch.Draw(this.sliderBodyTexture, rect, color);
+                }
             }
         }
 
