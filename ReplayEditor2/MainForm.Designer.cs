@@ -440,6 +440,7 @@
             // 
             // replayInfoLabel
             // 
+            this.replayInfoLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.replayInfoLabel.AutoSize = true;
             this.replayInfoLabel.Location = new System.Drawing.Point(571, 13);
             this.replayInfoLabel.Name = "replayInfoLabel";
@@ -471,7 +472,7 @@
             this.Controls.Add(this.editBtn);
             this.Controls.Add(this.playBtn);
             this.Name = "MainForm";
-            this.Text = "Osu Replay Editor v2";
+            this.Text = "osu! Replay Editor";
             this.Load += new System.EventHandler(this.Main_Load);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Main_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Main_DragEnter);

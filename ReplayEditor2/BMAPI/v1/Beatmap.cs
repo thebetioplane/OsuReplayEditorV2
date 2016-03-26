@@ -371,8 +371,7 @@ namespace BMAPI.v1
                             string[] pts = reSplit[5].Split(new[] { "|" }, StringSplitOptions.None);
 
                             ((SliderObject)newObject).Points.Add(newObject.Location + new Point2());
-                            //Console.WriteLine("slidertype = {0}", ((SliderObject)newObject).Type);
-
+                           
                             //Always exclude index 1, this will contain the type
                             for (int i = 1; i <= pts.Length - 1; i++)
                             {
@@ -383,8 +382,9 @@ namespace BMAPI.v1
                             ((SliderObject)newObject).RepeatCount = Convert.ToInt32(reSplit[6]);
                             float tempMaxPoints;
                             if (float.TryParse(reSplit[7], out tempMaxPoints))
+                            {
                                 ((SliderObject)newObject).MaxPoints = tempMaxPoints;
-
+                            }
                         }
                         if ((newObject.Type & HitObjectType.Spinner) > 0)
                         {

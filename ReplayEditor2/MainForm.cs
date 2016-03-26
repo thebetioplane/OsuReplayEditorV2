@@ -81,6 +81,18 @@ namespace ReplayEditor2
 
         private void Main_Load(object sender, EventArgs e)
         {
+            try
+            {
+                string version = " build " + File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "files", "version.txt"));
+                if (version.Length > 40)
+                {
+                    version = version.Substring(0, 40);
+                }
+                this.Text += version;
+            }
+            catch
+            {
+            }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -220,38 +232,46 @@ namespace ReplayEditor2
 
         public void Open(string replayPath)
         {
-            if (this.CurrentReplays[this.Canvas.State_ReplaySelected] != null)
+            try
             {
-                this.CurrentReplays[this.Canvas.State_ReplaySelected].Dispose();
-            }
-            this.CurrentReplays[this.Canvas.State_ReplaySelected] = new ReplayAPI.Replay(replayPath, true);
-            string beatmapPath = "";
-            foreach (OsuDbAPI.Beatmap dbBeatmap in this.OsuDbFile.Beatmaps)
-            {
-                if (dbBeatmap.Hash == this.CurrentReplays[this.Canvas.State_ReplaySelected].MapHash)
+                if (this.CurrentReplays[this.Canvas.State_ReplaySelected] != null)
                 {
-                    beatmapPath = MainForm.Path_Songs + dbBeatmap.FolderName + "\\" + dbBeatmap.OsuFile;
-                    break;
+                    this.CurrentReplays[this.Canvas.State_ReplaySelected].Dispose();
                 }
+                this.CurrentReplays[this.Canvas.State_ReplaySelected] = new ReplayAPI.Replay(replayPath, true);
+                string beatmapPath = "";
+                foreach (OsuDbAPI.Beatmap dbBeatmap in this.OsuDbFile.Beatmaps)
+                {
+                    if (dbBeatmap.Hash == this.CurrentReplays[this.Canvas.State_ReplaySelected].MapHash)
+                    {
+                        beatmapPath = MainForm.Path_Songs + dbBeatmap.FolderName + "\\" + dbBeatmap.OsuFile;
+                        break;
+                    }
+                }
+                if (beatmapPath.Length > 0)
+                {
+                    this.Canvas.Beatmap = new BMAPI.v1.Beatmap(beatmapPath);
+                }
+                else
+                {
+                    this.Canvas.Beatmap = null;
+                    this.SetTimelinePercent(0);
+                    MainForm.ErrorMessage("Could not locate .osu file.");
+                }
+                this.UpdateTitle();
+                this.Canvas.LoadReplay(this.CurrentReplays[this.Canvas.State_ReplaySelected]);
+                if (this.GetReplayRadioBtn(this.Canvas.State_ReplaySelected).Text[0] == ' ')
+                {
+                    char[] eax = this.GetReplayRadioBtn(this.Canvas.State_ReplaySelected).Text.ToCharArray();
+                    eax[0] = '*';
+                    this.GetReplayRadioBtn(this.Canvas.State_ReplaySelected).Text = new string(eax);
+                }
+                this.volumeBar_Scroll(null, null);
             }
-            if (beatmapPath.Length > 0)
+            catch
             {
-                this.Canvas.Beatmap = new BMAPI.v1.Beatmap(beatmapPath);
+                MainForm.ErrorMessage("The file you attempted to load was not a replay file.");
             }
-            else
-            {
-                this.Canvas.Beatmap = null;
-                MainForm.ErrorMessage("Could not locate .osu file.");
-            }
-            this.UpdateTitle();
-            this.Canvas.LoadReplay(this.CurrentReplays[this.Canvas.State_ReplaySelected]);
-            if (this.GetReplayRadioBtn(this.Canvas.State_ReplaySelected).Text[0] == ' ')
-            {
-                char[] eax = this.GetReplayRadioBtn(this.Canvas.State_ReplaySelected).Text.ToCharArray();
-                eax[0] = '*';
-                this.GetReplayRadioBtn(this.Canvas.State_ReplaySelected).Text = new string(eax);
-            }
-            this.volumeBar_Scroll(null, null);
         }
 
         public void UpdateTitle()

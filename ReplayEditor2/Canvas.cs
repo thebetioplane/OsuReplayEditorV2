@@ -288,6 +288,12 @@ namespace ReplayEditor2
             {
                 if (this.replayFrames[j] != null)
                 {
+                    if (this.replayFrames[j].Count == 0)
+                    {
+                        MainForm.ErrorMessage("This replay contains no cursor data.");
+                        this.replayFrames[j] = null;
+                        continue;
+                    }
                     // like the hitobjects, the replay frames are also in chronological order
                     // so we use more binary searches to efficiently get the index of the replay frame at a time
                     this.nearbyFrames[j] = new List<ReplayAPI.ReplayFrame>();
@@ -562,17 +568,13 @@ namespace ReplayEditor2
         {
             float smallLength = hitObject.Length / hitObject.RepeatCount;
             Color color = Color.White;
-            if (hitObject.Type == BMAPI.v1.SliderType.PSpline || hitObject.Type == BMAPI.v1.SliderType.CSpline)
-            {
-                color = Color.Red;
-            }
             color.A = (byte)(255 * alpha);
 
-            if (hitObject.Type == BMAPI.v1.SliderType.Bezier)
+            if (hitObject.Type != BMAPI.v1.SliderType.Linear)
             {
                 for (int i = 0; i < smallLength + 10; i += 10)
                 {
-                    Vector2 pos = this.InflateVector(hitObject.BezUniformVelocity(hitObject.Points, i).ToVector2(), true);
+                    Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;
@@ -581,7 +583,7 @@ namespace ReplayEditor2
                 }
                 for (int i = 0; i < smallLength + 10; i += 10)
                 {
-                    Vector2 pos = this.InflateVector(hitObject.BezUniformVelocity(hitObject.Points, i).ToVector2(), true);
+                    Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;

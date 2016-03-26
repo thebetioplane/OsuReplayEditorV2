@@ -35,8 +35,7 @@ namespace BMAPI.v1.HitObjects
                         break;
                     case SliderType.CSpline:
                     case SliderType.PSpline:
-                        Spline spl = new Spline(Points);
-                        S_Length = spl.Length() * RepeatCount;
+                        S_Length = SplineLength(Points) * RepeatCount;
                         break;
                     case SliderType.Bezier:
                         S_Length = BezierLength(Points) * RepeatCount;
@@ -60,8 +59,7 @@ namespace BMAPI.v1.HitObjects
                         break;
                     case SliderType.CSpline:
                     case SliderType.PSpline:
-                        Spline spl = new Spline(Points);
-                        S_SegmentLength = spl.Length();
+                        S_SegmentLength = SplineLength(Points);
                         break;
                     case SliderType.Bezier:
                         S_SegmentLength = BezierLength(Points);
@@ -96,133 +94,108 @@ namespace BMAPI.v1.HitObjects
                     return Points[0].Lerp(Points[1], T);
                 case SliderType.CSpline:
                 case SliderType.PSpline:
-                    Spline spl = new Spline(Points);
-                    return SplInterpolate(spl, T);
+                    return UniformSpeed(Points, this.Length / this.RepeatCount * T);
                 case SliderType.Bezier:
-                    return BezUniformVelocity(Points, this.Length / this.RepeatCount * T);
+                    return UniformSpeed(Points, this.Length / this.RepeatCount * T);
                 default:
                     return new Point2();
             }
         }
 
-        // Spline Interpolation
-        public class Spline : List<SplineFunction>
+        public Point2 SplInterpolate(float t)
         {
-            public Spline(IList<Point2> Points)
+            if (Points.Count == 3)
             {
-                List<float> Times = new List<float>();
-                for (float i = 0; i <= 1; i += 1f / Points.Count)
+                Point2 center = this.circleCenter(Points[0], Points[1], Points[2]);
+                float radius = Points[0].DistanceTo(center);
+                float start = (Points[0] - center).Atan2();
+                float middle = (Points[1] - center).Atan2();
+                float end = (Points[2] - center).Atan2();
+                float twopi = (float)(2 * Math.PI);
+                Point2 basepoint = (Points[0] + Points[1] + Points[2]) / 2f;
+                if (isClockwise(start, middle))
                 {
-                    Times.Add(i);
+                    while (end < start)
+                    {
+                        end += twopi;
+                    }
                 }
-                int n = Points.Count - 1;
-
-                Point2[] b = new Point2[n];
-                Point2[] d = new Point2[n];
-                Point2[] a = new Point2[n];
-                Point2[] c = new Point2[n + 1];
-                Point2[] l = new Point2[n + 1];
-                Point2[] u = new Point2[n + 1];
-                Point2[] z = new Point2[n + 1];
-                float[] h = new float[n + 1];
-
-                l[0] = new Point2(1);
-                u[0] = new Point2(0);
-                z[0] = new Point2(0);
-                h[0] = Times[1] - Times[0];
-
-                for (int i = 1; i < n; i++)
+                else
                 {
-                    h[i] = Times[i + 1] - Times[i];
-                    l[i] = 2 * (Times[i + 1] - Times[i - 1]) - (h[i - 1] * u[i - 1]);
-                    u[i] = h[i] / l[i];
-                    a[i] = (3 / h[i]) * (Points[i + 1] - Points[i]) - ((3 / h[i - 1]) * (Points[i] - Points[i - 1]));
-                    z[i] = (a[i] - (h[i - 1] * z[i - 1])) / l[i];
+                    while (start < end)
+                    {
+                        start += twopi;
+                    }
                 }
-                l[n] = new Point2(1);
-                z[n] = c[n] = new Point2(0);
-
-                for (int j = n - 1; j >= 0; j--)
-                {
-                    c[j] = z[j] - (u[j] * c[j + 1]);
-                    b[j] = (Points[j + 1] - Points[j]) / h[j] - (h[j] * (c[j + 1] + 2 * c[j])) / 3;
-                    d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
-                }
-
-                for (int i = 0; i < n; i++)
-                {
-                    Add(new SplineFunction(Times[i], Points[i], b[i], c[i], d[i]));
-                }
+                t = start + (end - start) * t;
+                return new Point2((float)(Math.Cos(t) * radius), (float)(Math.Sin(t) * radius)) + center;
             }
-
-            private Point2 Interpolate(float T)
+            else
             {
-                if (Count == 0) return new Point2();
-
-                Sort();
-                SplineFunction it = this.LastOrDefault(sf => sf.T <= T);
-                return it.Eval(T);
-            }
-
-
-            public float Length(float prec = 0.01f)
-            {
-                float ret = 0;
-                for (float f = 0; f < 1f; f += prec)
-                {
-                    Point2 a = Interpolate(f);
-                    Point2 b = Interpolate(f + prec);
-                    ret += (float)Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
-                }
-                return ret;
+                return BezInterpolate(Points, t);
             }
         }
-        public class SplineFunction : IComparable
+
+        private bool isClockwise(float a, float b)
         {
-            internal Point2 _a, _b, _c, _d;
-            internal float T { get; set; }
-
-            public SplineFunction(float x)
-            {
-                T = x;
-            }
-            public SplineFunction(float x, Point2 a, Point2 b, Point2 c, Point2 d)
-            {
-                _a = a;
-                _b = b;
-                _c = c;
-                _d = d;
-                T = x;
-            }
-            public int CompareTo(object Obj)
-            {
-                return Obj == null ? 1 : T.CompareTo(((SplineFunction)Obj).T);
-            }
-
-            public Point2 Eval(float x)
-            {
-                float xix = x - T;
-                return _a + _b * xix + _c * (xix * xix) + _d * (xix * xix * xix);
-            }
+            float pi = (float)Math.PI;
+            float twopi = 2f * pi;
+            return (a - b + twopi) % twopi > pi;
         }
-        public Point2 SplInterpolate(Spline Spline, float T)
+
+        private Point2 circleCenter(Point2 A, Point2 B, Point2 C)
         {
-            if (Spline.Count == 0) return new Point2();
-
-            Spline.Sort();
-            SplineFunction it = Spline.LastOrDefault(sf => sf.T <= T);
-            return it.Eval(T);
+            float yDelta_a = B.Y - A.Y;
+            float xDelta_a = B.X - A.X;
+            float yDelta_b = C.Y - B.Y;
+            float xDelta_b = C.X - B.X;
+            Point2 center = new Point2();
+            if (xDelta_a == 0)
+            {
+                xDelta_a = 0.00001f;
+            }
+            if (xDelta_b == 0)
+            {
+                xDelta_b = 0.00001f;
+            }
+            float aSlope = yDelta_a / xDelta_a;
+            float bSlope = yDelta_b / xDelta_b;
+            center.X = (aSlope * bSlope * (A.Y - C.Y) + bSlope * (A.X + B.X) - aSlope * (B.X + C.X)) / (2 * (bSlope - aSlope));
+            center.Y = -1 * (center.X - (A.X + B.X) / 2) / aSlope + (A.Y + B.Y) / 2;
+            return center;
         }
-        
+
+        public float SplineLength(List<Point2> Pts, float prec = 0.01f)
+        {
+            float sum = 0;
+            for (float f = 0; f < 1f; f += prec)
+            {
+                Point2 a = SplInterpolate(f);
+                Point2 b = SplInterpolate(f + prec);
+                float distance = (float)Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
+                DistanceTime dt = new DistanceTime();
+                sum += distance;
+                dt.distance = sum;
+                dt.t = f;
+                dt.point = b;
+                this.distanceTime.Add(dt);
+            }
+            return sum;
+        }
+
         // Bezier Interpolation
         public Point2 BezInterpolate(List<Point2> Pts, float t)
         {
             int n = Pts.Count;
+            if (n == 2)
+            {
+                return Points[0].Lerp(Points[1], t);
+            }
             Point2[] points = new Point2[Pts.Count];
 
             for (int i = 0; i < n; i++)
             {
-                points[i] = Pts[i];
+                points[i] = Pts[i] + new Point2();
             }
 
             for (int k = 1; k < n; k++)
@@ -235,7 +208,7 @@ namespace BMAPI.v1.HitObjects
             return points[0];
         }
 
-        public Point2 BezUniformVelocity(List<Point2> points, float target)
+        public Point2 UniformSpeed(List<Point2> points, float target)
         {
             int high = this.distanceTime.Count - 1;
             int low = 0;

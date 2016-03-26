@@ -113,5 +113,9 @@ namespace BMAPI
         {
             return this + (other - this) * t;
         }
+        public float Atan2()
+        {
+            return (float)Math.Atan2(this.Y, this.X);
+        }
     }
 }
