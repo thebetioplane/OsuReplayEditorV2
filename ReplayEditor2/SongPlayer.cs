@@ -89,6 +89,10 @@ namespace ReplayEditor2
         {
             if (this.stream != 0)
             {
+                if (ms < 0)
+                {
+                    ms = 0;
+                }
                 Bass.BASS_ChannelSetPosition(this.stream, ms / (double)1000);
             }
         }

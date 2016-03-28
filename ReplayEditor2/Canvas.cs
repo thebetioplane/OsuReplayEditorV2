@@ -122,7 +122,7 @@ namespace ReplayEditor2
             this.XNAForm.VisibleChanged += XNAForm_VisibleChanged;
             this.ParentForm.FormClosing += ParentForm_FormClosing;
 
-            this.State_TimeRange = 500;
+            this.State_TimeRange = 1000;
             this.State_CurveSmoothness = 50;
             this.State_PlaybackSpeed = 1.0f;
             this.State_ReplaySelected = 0;
@@ -187,6 +187,7 @@ namespace ReplayEditor2
             }
             catch
             {
+                MainForm.ErrorMessage(String.Format("Could not the load the image found at \"{0}\", please make sure it exists and is a valid .png image.", path));
                 return this.TextureFromColor(Color.Magenta);
             }
         }
@@ -357,10 +358,22 @@ namespace ReplayEditor2
                         // fade out
                         alpha = 1 - ((diff + hitObjectLength) / -(float)this.State_FadeTime);
                     }
-                    else if (diff >= this.approachRate && diff < this.approachRate + this.State_FadeTime)
+                    else if (! hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Spinner) && diff >= this.approachRate && diff < this.approachRate + this.State_FadeTime)
                     {
                         // fade in
                         alpha = 1 - (diff - this.approachRate) / (float)this.State_FadeTime;
+                    }
+                    else if (hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Spinner))
+                    {
+                        // because spinners don't have an approach circle before they appear
+                        if (diff >= 0 && diff < this.State_FadeTime)
+                        {
+                            alpha = 1 - diff / (float)this.State_FadeTime;
+                        }
+                        else if (diff > 0)
+                        {
+                            alpha = 0;
+                        }
                     }
                     if (diff < this.approachRate + this.State_FadeTime && diff > 0)
                     {
@@ -395,13 +408,32 @@ namespace ReplayEditor2
                 Vector2 lastPos = new Vector2(-222, 0);
                 for (int i = 0; i < this.nearbyFrames[this.state_ReplaySelected].Count; i++)
                 {
+                    ReplayAPI.ReplayFrame currentFrame = this.nearbyFrames[this.state_ReplaySelected][i];
                     float alpha = i / (float)this.nearbyFrames[this.state_ReplaySelected].Count;
-                    currentPos = this.InflateVector(new Vector2(this.nearbyFrames[this.state_ReplaySelected][i].X, this.nearbyFrames[this.state_ReplaySelected][i].Y));
+                    currentPos = this.InflateVector(new Vector2(currentFrame.X, currentFrame.Y));
                     if (lastPos.X != -222)
                     {
                         this.DrawLine(lastPos, currentPos, new Color(1.0f, 0.0f, 0.0f, alpha));
                     }
-                    this.spriteBatch.Draw(this.nodeTexture, currentPos - new Vector2(5, 5), new Color(1.0f, 1.0f, 1.0f, alpha));
+                    Color nodeColor = Color.Gray;
+                    if (currentFrame.Keys.HasFlag(ReplayAPI.Keys.K1))
+                    {
+                        nodeColor = Color.Cyan;
+                    }
+                    else if (currentFrame.Keys.HasFlag(ReplayAPI.Keys.K2))
+                    {
+                        nodeColor = Color.Magenta;
+                    }
+                    else if (currentFrame.Keys.HasFlag(ReplayAPI.Keys.M1))
+                    {
+                        nodeColor = Color.Lime;
+                    }
+                    else if (currentFrame.Keys.HasFlag(ReplayAPI.Keys.M2))
+                    {
+                        nodeColor = Color.Yellow;
+                    }
+                    nodeColor.A = (byte)(alpha * 255);
+                    this.spriteBatch.Draw(this.nodeTexture, currentPos - new Vector2(5, 5), nodeColor);
                     lastPos = currentPos;
                 }
             }
@@ -572,17 +604,29 @@ namespace ReplayEditor2
 
             if (hitObject.Type != BMAPI.v1.SliderType.Linear)
             {
-                for (int i = 0; i < smallLength + 10; i += 10)
+                for (float i = 0; i < smallLength + 10; i += 10)
                 {
+                    if (i > smallLength)
+                    {
+                        i = smallLength;
+                    }
                     Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;
                     rect.Y -= rect.Height / 2;
                     this.spriteBatch.Draw(this.sliderEdgeTexture, rect, color);
+                    if (i == smallLength)
+                    {
+                        break;
+                    }
                 }
-                for (int i = 0; i < smallLength + 10; i += 10)
+                for (float i = 0; i < smallLength + 10; i += 10)
                 {
+                    if (i > smallLength)
+                    {
+                        i = smallLength;
+                    }
                     Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
@@ -590,21 +634,37 @@ namespace ReplayEditor2
                     rect.Y -= rect.Height / 2;
                     color.A = 255;
                     this.spriteBatch.Draw(this.sliderBodyTexture, rect, color);
+                    if (i == smallLength)
+                    {
+                        break;
+                    }
                 }
             }
             else
             {
-                for (int i = 0; i < smallLength + 10; i += 10)
+                for (float i = 0; i < smallLength + 10; i += 10)
                 {
+                    if (i > smallLength)
+                    {
+                        i = smallLength;
+                    }
                     Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;
                     rect.Y -= rect.Height / 2;
                     this.spriteBatch.Draw(this.sliderEdgeTexture, rect, color);
+                    if (i == smallLength)
+                    {
+                        break;
+                    }
                 }
-                for (int i = 0; i < smallLength + 10; i += 10)
+                for (float i = 0; i < smallLength + 10; i += 10)
                 {
+                    if (i > smallLength)
+                    {
+                        i = smallLength;
+                    }
                     Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
@@ -612,6 +672,10 @@ namespace ReplayEditor2
                     rect.Y -= rect.Height / 2;
                     color.A = 255;
                     this.spriteBatch.Draw(this.sliderBodyTexture, rect, color);
+                    if (i == smallLength)
+                    {
+                        break;
+                    }
                 }
             }
         }
@@ -637,7 +701,7 @@ namespace ReplayEditor2
                 this.Visual_BeatmapAR = this.Beatmap.ApproachRate;
                 this.Visual_BeatmapCS = this.Beatmap.CircleSize;
                 this.songPlayer.Start(Path.Combine(this.Beatmap.Folder, this.Beatmap.AudioFilename));
-                this.JumpTo(this.FirstHitObjectTime - 100);
+                this.JumpTo(this.FirstHitObjectTime - 1000);
             }
             this.ApplyMods(replay);
         }

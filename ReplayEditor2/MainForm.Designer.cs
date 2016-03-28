@@ -60,8 +60,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.volumeBarLabel = new System.Windows.Forms.Label();
             this.cursorColorPanel = new System.Windows.Forms.Panel();
-            this.timeline = new ReplayEditor2.Timeline();
             this.replayInfoLabel = new System.Windows.Forms.Label();
+            this.timeline = new ReplayEditor2.Timeline();
             ((System.ComponentModel.ISupportInitialize)(this.timeWindowBar)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
@@ -111,7 +111,7 @@
             this.timeWindowBar.Name = "timeWindowBar";
             this.timeWindowBar.Size = new System.Drawing.Size(618, 45);
             this.timeWindowBar.TabIndex = 7;
-            this.timeWindowBar.Value = 5;
+            this.timeWindowBar.Value = 10;
             this.timeWindowBar.Scroll += new System.EventHandler(this.timeWindowBar_Scroll);
             // 
             // label1
@@ -130,9 +130,9 @@
             this.timeWindowLabel.AutoSize = true;
             this.timeWindowLabel.Location = new System.Drawing.Point(935, 707);
             this.timeWindowLabel.Name = "timeWindowLabel";
-            this.timeWindowLabel.Size = new System.Drawing.Size(41, 13);
+            this.timeWindowLabel.Size = new System.Drawing.Size(47, 13);
             this.timeWindowLabel.TabIndex = 9;
-            this.timeWindowLabel.Text = "500 ms";
+            this.timeWindowLabel.Text = "1000 ms";
             // 
             // panel1
             // 
@@ -427,6 +427,15 @@
             this.cursorColorPanel.Size = new System.Drawing.Size(36, 36);
             this.cursorColorPanel.TabIndex = 25;
             // 
+            // replayInfoLabel
+            // 
+            this.replayInfoLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.replayInfoLabel.AutoSize = true;
+            this.replayInfoLabel.Location = new System.Drawing.Point(571, 13);
+            this.replayInfoLabel.Name = "replayInfoLabel";
+            this.replayInfoLabel.Size = new System.Drawing.Size(0, 13);
+            this.replayInfoLabel.TabIndex = 26;
+            // 
             // timeline
             // 
             this.timeline.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -437,15 +446,6 @@
             this.timeline.TabIndex = 1;
             this.timeline.Value = 0F;
             this.timeline.MouseClick += new System.Windows.Forms.MouseEventHandler(this.timeline_MouseClick);
-            // 
-            // replayInfoLabel
-            // 
-            this.replayInfoLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.replayInfoLabel.AutoSize = true;
-            this.replayInfoLabel.Location = new System.Drawing.Point(571, 13);
-            this.replayInfoLabel.Name = "replayInfoLabel";
-            this.replayInfoLabel.Size = new System.Drawing.Size(0, 13);
-            this.replayInfoLabel.TabIndex = 26;
             // 
             // MainForm
             // 
