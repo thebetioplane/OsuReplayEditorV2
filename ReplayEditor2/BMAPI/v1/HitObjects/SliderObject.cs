@@ -34,8 +34,10 @@ namespace BMAPI.v1.HitObjects
                         S_Length = (float)Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2)) * RepeatCount;
                         break;
                     case SliderType.CSpline:
+                        Catmull c = new Catmull(Points, this);
+                        return c.Length() * RepeatCount;
                     case SliderType.PSpline:
-                        S_Length = SplineLength(Points) * RepeatCount;
+                        S_Length = PassThroughLength(Points) * RepeatCount;
                         break;
                     case SliderType.Bezier:
                         S_Length = BezierLength(Points) * RepeatCount;
@@ -55,11 +57,13 @@ namespace BMAPI.v1.HitObjects
                 switch (Type)
                 {
                     case SliderType.Linear:
-                        S_SegmentLength = (float)Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2));
+                        S_SegmentLength = LinearLength(Points);
                         break;
                     case SliderType.CSpline:
+                        Catmull c = new Catmull(Points, this);
+                        return c.Length();
                     case SliderType.PSpline:
-                        S_SegmentLength = SplineLength(Points);
+                        S_SegmentLength = PassThroughLength(Points);
                         break;
                     case SliderType.Bezier:
                         S_SegmentLength = BezierLength(Points);
@@ -88,21 +92,18 @@ namespace BMAPI.v1.HitObjects
         }
         public Point2 PositionAtTime(float T)
         {
-            switch (Type)
+            if (this.Type == SliderType.Linear)
             {
-                case SliderType.Linear:
+                if (this.Points.Count == 2)
+                {
                     return Points[0].Lerp(Points[1], T);
-                case SliderType.CSpline:
-                case SliderType.PSpline:
-                    return UniformSpeed(Points, this.Length / this.RepeatCount * T);
-                case SliderType.Bezier:
-                    return UniformSpeed(Points, this.Length / this.RepeatCount * T);
-                default:
-                    return new Point2();
+                }
+                return LinearInterpolate(Points, T * this.SegmentLength);
             }
+            return UniformSpeed(Points, this.Length / this.RepeatCount * T);
         }
 
-        public Point2 SplInterpolate(float t)
+        public Point2 PassThroughInterpolate(float t)
         {
             if (Points.Count == 3)
             {
@@ -113,7 +114,7 @@ namespace BMAPI.v1.HitObjects
                 float end = (Points[2] - center).Atan2();
                 float twopi = (float)(2 * Math.PI);
                 Point2 basepoint = (Points[0] + Points[1] + Points[2]) / 2f;
-                if (isClockwise(start, middle))
+                if (isClockwise(start, middle) || isClockwise(middle, end))
                 {
                     while (end < start)
                     {
@@ -132,7 +133,7 @@ namespace BMAPI.v1.HitObjects
             }
             else
             {
-                return BezInterpolate(Points, t);
+                return BezierInterpolate(Points, t);
             }
         }
 
@@ -165,13 +166,13 @@ namespace BMAPI.v1.HitObjects
             return center;
         }
 
-        public float SplineLength(List<Point2> Pts, float prec = 0.01f)
+        public float PassThroughLength(List<Point2> Pts, float prec = 0.01f)
         {
             float sum = 0;
             for (float f = 0; f < 1f; f += prec)
             {
-                Point2 a = SplInterpolate(f);
-                Point2 b = SplInterpolate(f + prec);
+                Point2 a = PassThroughInterpolate(f);
+                Point2 b = PassThroughInterpolate(f + prec);
                 float distance = (float)Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
                 DistanceTime dt = new DistanceTime();
                 sum += distance;
@@ -183,8 +184,7 @@ namespace BMAPI.v1.HitObjects
             return sum;
         }
 
-        // Bezier Interpolation
-        public Point2 BezInterpolate(List<Point2> Pts, float t)
+        public Point2 BezierInterpolate(List<Point2> Pts, float t)
         {
             int n = Pts.Count;
             if (n == 2)
@@ -245,8 +245,8 @@ namespace BMAPI.v1.HitObjects
             float sum = 0;
             for (float f = 0; f < 1f; f += prec)
             {
-                Point2 a = BezInterpolate(Pts, f);
-                Point2 b = BezInterpolate(Pts, f + prec);
+                Point2 a = BezierInterpolate(Pts, f);
+                Point2 b = BezierInterpolate(Pts, f + prec);
                 float distance = (float)Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
                 DistanceTime dt = new DistanceTime();
                 sum += distance;
@@ -256,6 +256,153 @@ namespace BMAPI.v1.HitObjects
                 this.distanceTime.Add(dt);
             }
             return sum;
+        }
+
+        public float LinearLength(List<Point2> Pts)
+        {
+            float sum = 0;
+            for (int i = 0; i < Pts.Count - 1; i++)
+            {
+                sum += Pts[i].DistanceTo(Pts[i + 1]);
+            }
+            return sum;
+        }
+
+        public Point2 LinearInterpolate(List<Point2> Pts, float distance)
+        {
+            float dsum = 0;
+            int n = Pts.Count - 1;
+            for (int i = 0; i < n; i++)
+            {
+                float d = Pts[0].DistanceTo(Pts[1]);
+                if (dsum + d > distance)
+                {
+                    return Pts[i].Lerp(Pts[i + 1], (distance - dsum) / d);
+                }
+                dsum += d;
+            }
+            return Pts[n];
+        }
+
+        public class Catmull : List<SplineFunction>
+        {
+            public SliderObject parent = null;
+
+            public Catmull(IList<Point2> Points, SliderObject parent)
+            {
+                this.parent = parent;
+                List<float> Times = new List<float>();
+                for (float i = 0; i <= 1; i += 1f / Points.Count)
+                {
+                    Times.Add(i);
+                }
+                int n = Points.Count - 1;
+
+                Point2[] b = new Point2[n];
+                Point2[] d = new Point2[n];
+                Point2[] a = new Point2[n];
+                Point2[] c = new Point2[n + 1];
+                Point2[] l = new Point2[n + 1];
+                Point2[] u = new Point2[n + 1];
+                Point2[] z = new Point2[n + 1];
+                float[] h = new float[n + 1];
+
+                l[0] = new Point2(1);
+                u[0] = new Point2(0);
+                z[0] = new Point2(0);
+                h[0] = Times[1] - Times[0];
+
+                for (int i = 1; i < n; i++)
+                {
+                    h[i] = Times[i + 1] - Times[i];
+                    l[i] = 2 * (Times[i + 1] - Times[i - 1]) - (h[i - 1] * u[i - 1]);
+                    u[i] = h[i] / l[i];
+                    a[i] = (3 / h[i]) * (Points[i + 1] - Points[i]) - ((3 / h[i - 1]) * (Points[i] - Points[i - 1]));
+                    z[i] = (a[i] - (h[i - 1] * z[i - 1])) / l[i];
+                }
+                l[n] = new Point2(1);
+                z[n] = c[n] = new Point2(0);
+
+                for (int j = n - 1; j >= 0; j--)
+                {
+                    c[j] = z[j] - (u[j] * c[j + 1]);
+                    b[j] = (Points[j + 1] - Points[j]) / h[j] - (h[j] * (c[j + 1] + 2 * c[j])) / 3;
+                    d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
+                }
+
+                for (int i = 0; i < n; i++)
+                {
+                    Add(new SplineFunction(Times[i], Points[i], b[i], c[i], d[i]));
+                }
+            }
+
+            private Point2 Interpolate(float T)
+            {
+                if (Count == 0) return new Point2();
+
+                Sort();
+                SplineFunction it = this.LastOrDefault(sf => sf.T <= T);
+                return it.Eval(T);
+            }
+
+
+            public float Length(float prec = 0.01f)
+            {
+                float sum = 0;
+                for (float f = 0; f < 1f; f += prec)
+                {
+                    Point2 a = Interpolate(f);
+                    Point2 b = Interpolate(f + prec);
+                    float distance = (float)Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
+                    DistanceTime dt = new DistanceTime();
+                    sum += distance;
+                    dt.distance = sum;
+                    dt.t = f;
+                    dt.point = b;
+                    this.parent.distanceTime.Add(dt);
+                }
+                return sum;
+            }
+        }
+        public class SplineFunction : IComparable
+        {
+            internal Point2 _a, _b, _c, _d;
+            internal float T { get; set; }
+
+            public SplineFunction(float x)
+            {
+                T = x;
+            }
+            public SplineFunction(float x, Point2 a, Point2 b, Point2 c, Point2 d)
+            {
+                _a = a;
+                _b = b;
+                _c = c;
+                _d = d;
+                T = x;
+            }
+            public int CompareTo(object Obj)
+            {
+                return Obj == null ? 1 : T.CompareTo(((SplineFunction)Obj).T);
+            }
+
+            public Point2 Eval(float x)
+            {
+                float xix = x - T;
+                return _a + _b * xix + _c * (xix * xix) + _d * (xix * xix * xix);
+            }
+        }
+        public Point2 CatmullInterpolate(List<Point2> Pts, float T)
+        {
+            if (Pts.Count == 2)
+            {
+                return Pts[0].Lerp(Pts[1], T);
+            }
+            Catmull spline = new Catmull(Pts, this);
+            if (spline.Count == 0) return new Point2();
+            spline.Sort();
+            SplineFunction it = spline.LastOrDefault(sf => sf.T <= T);
+            return it.Eval(T);
         }
 
         public override bool ContainsPoint(Point2 Point)

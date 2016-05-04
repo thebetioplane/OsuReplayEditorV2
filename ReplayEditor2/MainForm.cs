@@ -66,7 +66,14 @@ namespace ReplayEditor2
                 }
                 if (File.Exists(MainForm.Path_OsuDb))
                 {
-                    this.OsuDbFile = new OsuDbAPI.OsuDbFile(MainForm.Path_OsuDb);
+                    try
+                    {
+                        this.OsuDbFile = new OsuDbAPI.OsuDbFile(MainForm.Path_OsuDb);
+                    }
+                    catch
+                    {
+                        MainForm.ErrorMessage("Could not load osu!.db. Try deleting it and letting osu! rebuild it when you relaunch the game.");
+                    }
                 }
                 else
                 {
@@ -239,6 +246,11 @@ namespace ReplayEditor2
                     this.CurrentReplays[this.Canvas.State_ReplaySelected].Dispose();
                 }
                 this.CurrentReplays[this.Canvas.State_ReplaySelected] = new ReplayAPI.Replay(replayPath, true);
+                if (this.OsuDbFile == null)
+                {
+                    ErrorMessage("Can not read osu!.db.");
+                    return;
+                }
                 string beatmapPath = "";
                 foreach (OsuDbAPI.Beatmap dbBeatmap in this.OsuDbFile.Beatmaps)
                 {

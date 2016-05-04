@@ -19,7 +19,7 @@ namespace ReplayEditor2
             }
             else
             {
-                settings = new string[2] { @"C:\osu!.db", @"C:\osu!\songs\" };
+                settings = new string[2] { @"C:\osu!\osu!.db", @"C:\osu!\songs\" };
                 File.WriteAllLines(MainForm.Path_Settings, settings);
                 DialogResult reply = MessageBox.Show("A settings file has been created for you to link to your songs folder. Would you like to edit it now?", "File Created", MessageBoxButtons.YesNo);
                 if (reply == DialogResult.Yes)

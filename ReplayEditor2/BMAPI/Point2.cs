@@ -111,7 +111,7 @@ namespace BMAPI
         }
         public Point2 Lerp(Point2 other, float t)
         {
-            return this + (other - this) * t;
+            return (1 - t) * this + t * other;
         }
         public float Atan2()
         {

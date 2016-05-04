@@ -602,7 +602,7 @@ namespace ReplayEditor2
             Color color = Color.White;
             color.A = (byte)(255 * alpha);
 
-            if (hitObject.Type != BMAPI.v1.SliderType.Linear)
+            if (hitObject.Type == BMAPI.v1.SliderType.Linear)
             {
                 for (float i = 0; i < smallLength + 10; i += 10)
                 {
@@ -610,7 +610,7 @@ namespace ReplayEditor2
                     {
                         i = smallLength;
                     }
-                    Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
+                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;
@@ -627,7 +627,7 @@ namespace ReplayEditor2
                     {
                         i = smallLength;
                     }
-                    Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
+                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;
@@ -648,7 +648,7 @@ namespace ReplayEditor2
                     {
                         i = smallLength;
                     }
-                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
+                    Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;
@@ -665,7 +665,7 @@ namespace ReplayEditor2
                     {
                         i = smallLength;
                     }
-                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
+                    Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;
