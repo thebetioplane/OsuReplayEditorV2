@@ -16,6 +16,7 @@ namespace ReplayEditor2
         public static string Path_Settings = "settings.txt";
         public static string Path_OsuDb = "";
         public static string Path_Songs = "";
+        public static string Path_Replays = "";
         public static string Path_Img_EditorNode = @"img/editornode.png";
         public static string Path_Img_Cursor = @"img/cursor.png";
         public static string Path_Img_Hitcircle = @"img/hitcircle.png";
@@ -58,6 +59,7 @@ namespace ReplayEditor2
         {
             MainForm.Path_OsuDb = settings[0];
             MainForm.Path_Songs = settings[1];
+            MainForm.Path_Replays = settings[2];
             if (Directory.Exists(MainForm.Path_Songs))
             {
                 if (MainForm.Path_Songs[MainForm.Path_Songs.Length - 1] != '\\')
@@ -83,6 +85,13 @@ namespace ReplayEditor2
             else
             {
                 MainForm.ErrorMessage("Path to songs folder does not exist. You will not be able to view beatmaps, only the cursor data.");
+            }
+            if (Directory.Exists(MainForm.Path_Replays))
+            {
+                if (MainForm.Path_Replays[MainForm.Path_Replays.Length - 1] != '\\')
+                {
+                    MainForm.Path_Replays += '\\';
+                }
             }
         }
 
@@ -233,8 +242,10 @@ namespace ReplayEditor2
 
         public void Open()
         {
-            //if (this.openFileDialog.ShowDialog() != DialogResult.Cancel)
-            MessageBox.Show("Eventually this will open a dialog, for now just drag and drop it.");
+            if (this.openFileDialog.ShowDialog() != DialogResult.Cancel)
+            {
+                this.Open(this.openFileDialog.FileName);
+            }
         }
 
         public void Open(string replayPath)
@@ -580,6 +591,31 @@ namespace ReplayEditor2
                     this.GetReplayRadioBtn(this.Canvas.State_ReplaySelected).Text = new string(eax);
                 }
             }
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Open();
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Save();
+        }
+
+        private void openSettingsFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.OpenSettings();
+        }
+
+        private void reloadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.SetSettings(Program.LoadSettings());
+        }
+
+        private void quickLoadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("What this will do is display a list of replays saved in your replays folder. Eventually.", ":(");
         }
     }
 }
