@@ -18,15 +18,22 @@ namespace ReplayAPI
                 CoderPropID.LitContextBits,
                 CoderPropID.LitPosBits,
                 CoderPropID.Algorithm,
+                CoderPropID.NumFastBytes,
+                CoderPropID.MatchFinder,
+                CoderPropID.EndMarker
             };
 
             object[] properties = 
             {
-                (1 << 16),
+                //(1 << 16),
+                (1 << 21),
                 2,
                 3,
                 0,
                 2,
+                128,
+                "bt4",
+                false
             };
 
             var outStream = new MemoryStream();

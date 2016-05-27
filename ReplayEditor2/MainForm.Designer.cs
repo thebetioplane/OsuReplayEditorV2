@@ -62,15 +62,24 @@
             this.cursorColorPanel = new System.Windows.Forms.Panel();
             this.replayInfoLabel = new System.Windows.Forms.Label();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.quickLoadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openSettingsFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reloadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.quickLoadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.onscreenHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sourceCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.tool1Radio = new System.Windows.Forms.RadioButton();
+            this.tool0Radio = new System.Windows.Forms.RadioButton();
+            this.tool2Radio = new System.Windows.Forms.RadioButton();
+            this.nodesSelectedLabel = new System.Windows.Forms.Label();
             this.timeline = new ReplayEditor2.Timeline();
             ((System.ComponentModel.ISupportInitialize)(this.timeWindowBar)).BeginInit();
             this.panel1.SuspendLayout();
@@ -78,12 +87,13 @@
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.volumeBar)).BeginInit();
             this.menuStrip1.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // playBtn
             // 
             this.playBtn.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.playBtn.Location = new System.Drawing.Point(96, 695);
+            this.playBtn.Location = new System.Drawing.Point(107, 695);
             this.playBtn.Name = "playBtn";
             this.playBtn.Size = new System.Drawing.Size(126, 44);
             this.playBtn.TabIndex = 2;
@@ -94,7 +104,7 @@
             // editBtn
             // 
             this.editBtn.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.editBtn.Location = new System.Drawing.Point(240, 24);
+            this.editBtn.Location = new System.Drawing.Point(251, 24);
             this.editBtn.Name = "editBtn";
             this.editBtn.Size = new System.Drawing.Size(138, 37);
             this.editBtn.TabIndex = 5;
@@ -105,7 +115,7 @@
             // metadataBtn
             // 
             this.metadataBtn.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.metadataBtn.Location = new System.Drawing.Point(384, 24);
+            this.metadataBtn.Location = new System.Drawing.Point(395, 24);
             this.metadataBtn.Name = "metadataBtn";
             this.metadataBtn.Size = new System.Drawing.Size(138, 37);
             this.metadataBtn.TabIndex = 6;
@@ -116,7 +126,7 @@
             // timeWindowBar
             // 
             this.timeWindowBar.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.timeWindowBar.Location = new System.Drawing.Point(228, 710);
+            this.timeWindowBar.Location = new System.Drawing.Point(239, 710);
             this.timeWindowBar.Maximum = 20;
             this.timeWindowBar.Minimum = 1;
             this.timeWindowBar.Name = "timeWindowBar";
@@ -129,7 +139,7 @@
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(840, 719);
+            this.label1.Location = new System.Drawing.Point(851, 719);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(88, 13);
             this.label1.TabIndex = 8;
@@ -139,7 +149,7 @@
             // 
             this.timeWindowLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.timeWindowLabel.AutoSize = true;
-            this.timeWindowLabel.Location = new System.Drawing.Point(935, 719);
+            this.timeWindowLabel.Location = new System.Drawing.Point(946, 719);
             this.timeWindowLabel.Name = "timeWindowLabel";
             this.timeWindowLabel.Size = new System.Drawing.Size(47, 13);
             this.timeWindowLabel.TabIndex = 9;
@@ -156,7 +166,7 @@
             this.panel1.Controls.Add(this.speed050Radio);
             this.panel1.Controls.Add(this.speed025Radio);
             this.panel1.Controls.Add(this.speed075Radio);
-            this.panel1.Location = new System.Drawing.Point(-2, 133);
+            this.panel1.Location = new System.Drawing.Point(9, 133);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(92, 203);
             this.panel1.TabIndex = 10;
@@ -164,7 +174,7 @@
             // speed400Radio
             // 
             this.speed400Radio.AutoSize = true;
-            this.speed400Radio.Location = new System.Drawing.Point(7, 176);
+            this.speed400Radio.Location = new System.Drawing.Point(1, 176);
             this.speed400Radio.Name = "speed400Radio";
             this.speed400Radio.Size = new System.Drawing.Size(54, 17);
             this.speed400Radio.TabIndex = 18;
@@ -175,7 +185,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 5);
+            this.label2.Location = new System.Drawing.Point(-3, 5);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(88, 13);
             this.label2.TabIndex = 12;
@@ -184,7 +194,7 @@
             // speed200Radio
             // 
             this.speed200Radio.AutoSize = true;
-            this.speed200Radio.Location = new System.Drawing.Point(7, 153);
+            this.speed200Radio.Location = new System.Drawing.Point(1, 153);
             this.speed200Radio.Name = "speed200Radio";
             this.speed200Radio.Size = new System.Drawing.Size(54, 17);
             this.speed200Radio.TabIndex = 17;
@@ -195,7 +205,7 @@
             // speed150Radio
             // 
             this.speed150Radio.AutoSize = true;
-            this.speed150Radio.Location = new System.Drawing.Point(7, 130);
+            this.speed150Radio.Location = new System.Drawing.Point(1, 130);
             this.speed150Radio.Name = "speed150Radio";
             this.speed150Radio.Size = new System.Drawing.Size(78, 17);
             this.speed150Radio.TabIndex = 16;
@@ -207,7 +217,7 @@
             // 
             this.speed100Radio.AutoSize = true;
             this.speed100Radio.Checked = true;
-            this.speed100Radio.Location = new System.Drawing.Point(7, 107);
+            this.speed100Radio.Location = new System.Drawing.Point(1, 107);
             this.speed100Radio.Name = "speed100Radio";
             this.speed100Radio.Size = new System.Drawing.Size(54, 17);
             this.speed100Radio.TabIndex = 15;
@@ -219,7 +229,7 @@
             // speed050Radio
             // 
             this.speed050Radio.AutoSize = true;
-            this.speed050Radio.Location = new System.Drawing.Point(7, 61);
+            this.speed050Radio.Location = new System.Drawing.Point(1, 61);
             this.speed050Radio.Name = "speed050Radio";
             this.speed050Radio.Size = new System.Drawing.Size(54, 17);
             this.speed050Radio.TabIndex = 14;
@@ -230,7 +240,7 @@
             // speed025Radio
             // 
             this.speed025Radio.AutoSize = true;
-            this.speed025Radio.Location = new System.Drawing.Point(7, 38);
+            this.speed025Radio.Location = new System.Drawing.Point(1, 38);
             this.speed025Radio.Name = "speed025Radio";
             this.speed025Radio.Size = new System.Drawing.Size(54, 17);
             this.speed025Radio.TabIndex = 14;
@@ -241,7 +251,7 @@
             // speed075Radio
             // 
             this.speed075Radio.AutoSize = true;
-            this.speed075Radio.Location = new System.Drawing.Point(7, 84);
+            this.speed075Radio.Location = new System.Drawing.Point(1, 84);
             this.speed075Radio.Name = "speed075Radio";
             this.speed075Radio.Size = new System.Drawing.Size(78, 17);
             this.speed075Radio.TabIndex = 13;
@@ -252,7 +262,7 @@
             // pictureBox
             // 
             this.pictureBox.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.pictureBox.Location = new System.Drawing.Point(96, 67);
+            this.pictureBox.Location = new System.Drawing.Point(107, 67);
             this.pictureBox.Name = "pictureBox";
             this.pictureBox.Size = new System.Drawing.Size(832, 624);
             this.pictureBox.TabIndex = 11;
@@ -261,7 +271,7 @@
             // viewBtn
             // 
             this.viewBtn.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.viewBtn.Location = new System.Drawing.Point(96, 24);
+            this.viewBtn.Location = new System.Drawing.Point(107, 24);
             this.viewBtn.Name = "viewBtn";
             this.viewBtn.Size = new System.Drawing.Size(138, 37);
             this.viewBtn.TabIndex = 12;
@@ -280,7 +290,7 @@
             this.panel2.Controls.Add(this.replay2Radio);
             this.panel2.Controls.Add(this.replay1Radio);
             this.panel2.Controls.Add(this.replay3Radio);
-            this.panel2.Location = new System.Drawing.Point(-4, 371);
+            this.panel2.Location = new System.Drawing.Point(7, 371);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(92, 203);
             this.panel2.TabIndex = 19;
@@ -288,7 +298,7 @@
             // replay7Radio
             // 
             this.replay7Radio.AutoSize = true;
-            this.replay7Radio.Location = new System.Drawing.Point(7, 176);
+            this.replay7Radio.Location = new System.Drawing.Point(1, 176);
             this.replay7Radio.Name = "replay7Radio";
             this.replay7Radio.Size = new System.Drawing.Size(59, 17);
             this.replay7Radio.TabIndex = 18;
@@ -299,7 +309,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(5, 11);
+            this.label3.Location = new System.Drawing.Point(-1, 11);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(65, 13);
             this.label3.TabIndex = 12;
@@ -308,7 +318,7 @@
             // replay6Radio
             // 
             this.replay6Radio.AutoSize = true;
-            this.replay6Radio.Location = new System.Drawing.Point(7, 153);
+            this.replay6Radio.Location = new System.Drawing.Point(1, 153);
             this.replay6Radio.Name = "replay6Radio";
             this.replay6Radio.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.replay6Radio.Size = new System.Drawing.Size(61, 17);
@@ -320,7 +330,7 @@
             // replay5Radio
             // 
             this.replay5Radio.AutoSize = true;
-            this.replay5Radio.Location = new System.Drawing.Point(7, 130);
+            this.replay5Radio.Location = new System.Drawing.Point(1, 130);
             this.replay5Radio.Name = "replay5Radio";
             this.replay5Radio.Size = new System.Drawing.Size(73, 17);
             this.replay5Radio.TabIndex = 16;
@@ -331,7 +341,7 @@
             // replay4Radio
             // 
             this.replay4Radio.AutoSize = true;
-            this.replay4Radio.Location = new System.Drawing.Point(7, 107);
+            this.replay4Radio.Location = new System.Drawing.Point(1, 107);
             this.replay4Radio.Name = "replay4Radio";
             this.replay4Radio.Size = new System.Drawing.Size(62, 17);
             this.replay4Radio.TabIndex = 15;
@@ -342,7 +352,7 @@
             // replay2Radio
             // 
             this.replay2Radio.AutoSize = true;
-            this.replay2Radio.Location = new System.Drawing.Point(7, 61);
+            this.replay2Radio.Location = new System.Drawing.Point(1, 61);
             this.replay2Radio.Name = "replay2Radio";
             this.replay2Radio.Size = new System.Drawing.Size(52, 17);
             this.replay2Radio.TabIndex = 14;
@@ -354,7 +364,7 @@
             // 
             this.replay1Radio.AutoSize = true;
             this.replay1Radio.Checked = true;
-            this.replay1Radio.Location = new System.Drawing.Point(7, 38);
+            this.replay1Radio.Location = new System.Drawing.Point(1, 38);
             this.replay1Radio.Name = "replay1Radio";
             this.replay1Radio.Size = new System.Drawing.Size(51, 17);
             this.replay1Radio.TabIndex = 14;
@@ -366,7 +376,7 @@
             // replay3Radio
             // 
             this.replay3Radio.AutoSize = true;
-            this.replay3Radio.Location = new System.Drawing.Point(7, 84);
+            this.replay3Radio.Location = new System.Drawing.Point(1, 84);
             this.replay3Radio.Name = "replay3Radio";
             this.replay3Radio.Size = new System.Drawing.Size(60, 17);
             this.replay3Radio.TabIndex = 13;
@@ -377,7 +387,7 @@
             // unloadBtn
             // 
             this.unloadBtn.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.unloadBtn.Location = new System.Drawing.Point(8, 570);
+            this.unloadBtn.Location = new System.Drawing.Point(19, 570);
             this.unloadBtn.Name = "unloadBtn";
             this.unloadBtn.Size = new System.Drawing.Size(75, 23);
             this.unloadBtn.TabIndex = 20;
@@ -389,7 +399,7 @@
             // 
             this.songTimeLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.songTimeLabel.AutoSize = true;
-            this.songTimeLabel.Location = new System.Drawing.Point(935, 696);
+            this.songTimeLabel.Location = new System.Drawing.Point(946, 696);
             this.songTimeLabel.Name = "songTimeLabel";
             this.songTimeLabel.Size = new System.Drawing.Size(29, 13);
             this.songTimeLabel.TabIndex = 21;
@@ -398,7 +408,7 @@
             // volumeBar
             // 
             this.volumeBar.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.volumeBar.Location = new System.Drawing.Point(938, 83);
+            this.volumeBar.Location = new System.Drawing.Point(949, 83);
             this.volumeBar.Name = "volumeBar";
             this.volumeBar.Orientation = System.Windows.Forms.Orientation.Vertical;
             this.volumeBar.Size = new System.Drawing.Size(45, 253);
@@ -411,7 +421,7 @@
             // 
             this.label4.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(928, 66);
+            this.label4.Location = new System.Drawing.Point(939, 66);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(45, 13);
             this.label4.TabIndex = 23;
@@ -421,7 +431,7 @@
             // 
             this.volumeBarLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.volumeBarLabel.AutoSize = true;
-            this.volumeBarLabel.Location = new System.Drawing.Point(970, 67);
+            this.volumeBarLabel.Location = new System.Drawing.Point(981, 65);
             this.volumeBarLabel.Name = "volumeBarLabel";
             this.volumeBarLabel.Size = new System.Drawing.Size(36, 13);
             this.volumeBarLabel.TabIndex = 24;
@@ -433,7 +443,7 @@
             this.cursorColorPanel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.cursorColorPanel.BackColor = System.Drawing.Color.Red;
             this.cursorColorPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.cursorColorPanel.Location = new System.Drawing.Point(529, 25);
+            this.cursorColorPanel.Location = new System.Drawing.Point(540, 25);
             this.cursorColorPanel.Name = "cursorColorPanel";
             this.cursorColorPanel.Size = new System.Drawing.Size(36, 36);
             this.cursorColorPanel.TabIndex = 25;
@@ -442,23 +452,10 @@
             // 
             this.replayInfoLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.replayInfoLabel.AutoSize = true;
-            this.replayInfoLabel.Location = new System.Drawing.Point(571, 25);
+            this.replayInfoLabel.Location = new System.Drawing.Point(582, 25);
             this.replayInfoLabel.Name = "replayInfoLabel";
             this.replayInfoLabel.Size = new System.Drawing.Size(0, 13);
             this.replayInfoLabel.TabIndex = 26;
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.editToolStripMenuItem,
-            this.settingsToolStripMenuItem,
-            this.quickLoadToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1008, 24);
-            this.menuStrip1.TabIndex = 27;
-            this.menuStrip1.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
@@ -498,13 +495,6 @@
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.settingsToolStripMenuItem.Text = "Settings";
             // 
-            // quickLoadToolStripMenuItem
-            // 
-            this.quickLoadToolStripMenuItem.Name = "quickLoadToolStripMenuItem";
-            this.quickLoadToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
-            this.quickLoadToolStripMenuItem.Text = "Quick Load";
-            this.quickLoadToolStripMenuItem.Click += new System.EventHandler(this.quickLoadToolStripMenuItem_Click);
-            // 
             // openSettingsFileToolStripMenuItem
             // 
             this.openSettingsFileToolStripMenuItem.Name = "openSettingsFileToolStripMenuItem";
@@ -519,10 +509,122 @@
             this.reloadToolStripMenuItem.Text = "Reload";
             this.reloadToolStripMenuItem.Click += new System.EventHandler(this.reloadToolStripMenuItem_Click);
             // 
+            // quickLoadToolStripMenuItem
+            // 
+            this.quickLoadToolStripMenuItem.Name = "quickLoadToolStripMenuItem";
+            this.quickLoadToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
+            this.quickLoadToolStripMenuItem.Text = "Quick Load";
+            this.quickLoadToolStripMenuItem.DropDownOpening += new System.EventHandler(this.quickLoadToolStripMenuItem_DropDownOpening);
+            this.quickLoadToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.quickLoadToolStripMenuItem_DropDownItemClicked);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.onscreenHelpToolStripMenuItem,
+            this.sourceCodeToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // onscreenHelpToolStripMenuItem
+            // 
+            this.onscreenHelpToolStripMenuItem.Name = "onscreenHelpToolStripMenuItem";
+            this.onscreenHelpToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.onscreenHelpToolStripMenuItem.Text = "On-screen Help (H)";
+            this.onscreenHelpToolStripMenuItem.Click += new System.EventHandler(this.onscreenHelpCtrlHToolStripMenuItem_Click);
+            // 
+            // sourceCodeToolStripMenuItem
+            // 
+            this.sourceCodeToolStripMenuItem.Name = "sourceCodeToolStripMenuItem";
+            this.sourceCodeToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.sourceCodeToolStripMenuItem.Text = "Source Code";
+            this.sourceCodeToolStripMenuItem.Click += new System.EventHandler(this.sourceCodeToolStripMenuItem_Click);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.BackColor = System.Drawing.SystemColors.MenuBar;
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.editToolStripMenuItem,
+            this.settingsToolStripMenuItem,
+            this.quickLoadToolStripMenuItem,
+            this.helpToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1043, 24);
+            this.menuStrip1.TabIndex = 27;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // panel3
+            // 
+            this.panel3.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.panel3.Controls.Add(this.label5);
+            this.panel3.Controls.Add(this.tool1Radio);
+            this.panel3.Controls.Add(this.tool0Radio);
+            this.panel3.Controls.Add(this.tool2Radio);
+            this.panel3.Location = new System.Drawing.Point(945, 371);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(92, 101);
+            this.panel3.TabIndex = 28;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(-3, 5);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(36, 13);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Tools:";
+            // 
+            // tool1Radio
+            // 
+            this.tool1Radio.AutoSize = true;
+            this.tool1Radio.Location = new System.Drawing.Point(1, 61);
+            this.tool1Radio.Name = "tool1Radio";
+            this.tool1Radio.Size = new System.Drawing.Size(52, 17);
+            this.tool1Radio.TabIndex = 14;
+            this.tool1Radio.Text = "Move";
+            this.tool1Radio.UseVisualStyleBackColor = true;
+            this.tool1Radio.CheckedChanged += new System.EventHandler(this.tool1Radio_CheckedChanged);
+            // 
+            // tool0Radio
+            // 
+            this.tool0Radio.AutoSize = true;
+            this.tool0Radio.Checked = true;
+            this.tool0Radio.Location = new System.Drawing.Point(1, 38);
+            this.tool0Radio.Name = "tool0Radio";
+            this.tool0Radio.Size = new System.Drawing.Size(55, 17);
+            this.tool0Radio.TabIndex = 14;
+            this.tool0Radio.TabStop = true;
+            this.tool0Radio.Text = "Select";
+            this.tool0Radio.UseVisualStyleBackColor = true;
+            this.tool0Radio.CheckedChanged += new System.EventHandler(this.tool0Radio_CheckedChanged);
+            // 
+            // tool2Radio
+            // 
+            this.tool2Radio.AutoSize = true;
+            this.tool2Radio.Location = new System.Drawing.Point(1, 84);
+            this.tool2Radio.Name = "tool2Radio";
+            this.tool2Radio.Size = new System.Drawing.Size(59, 17);
+            this.tool2Radio.TabIndex = 13;
+            this.tool2Radio.Text = "Stretch";
+            this.tool2Radio.UseVisualStyleBackColor = true;
+            this.tool2Radio.CheckedChanged += new System.EventHandler(this.tool2Radio_CheckedChanged);
+            // 
+            // nodesSelectedLabel
+            // 
+            this.nodesSelectedLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.nodesSelectedLabel.AutoSize = true;
+            this.nodesSelectedLabel.Location = new System.Drawing.Point(938, 479);
+            this.nodesSelectedLabel.Name = "nodesSelectedLabel";
+            this.nodesSelectedLabel.Size = new System.Drawing.Size(92, 13);
+            this.nodesSelectedLabel.TabIndex = 15;
+            this.nodesSelectedLabel.Text = "0 Nodes Selected";
+            // 
             // timeline
             // 
             this.timeline.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.timeline.Location = new System.Drawing.Point(228, 695);
+            this.timeline.Location = new System.Drawing.Point(239, 695);
             this.timeline.Name = "timeline";
             this.timeline.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.timeline.Size = new System.Drawing.Size(700, 15);
@@ -535,7 +637,8 @@
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1008, 753);
+            this.ClientSize = new System.Drawing.Size(1043, 753);
+            this.Controls.Add(this.panel3);
             this.Controls.Add(this.replayInfoLabel);
             this.Controls.Add(this.cursorColorPanel);
             this.Controls.Add(this.volumeBarLabel);
@@ -555,6 +658,7 @@
             this.Controls.Add(this.editBtn);
             this.Controls.Add(this.playBtn);
             this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.nodesSelectedLabel);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "osu! Replay Editor";
@@ -570,6 +674,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.volumeBar)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -612,15 +718,24 @@
         private System.Windows.Forms.Panel cursorColorPanel;
         private System.Windows.Forms.Label replayInfoLabel;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
-        private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem quickLoadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openSettingsFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reloadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem quickLoadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sourceCodeToolStripMenuItem;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem onscreenHelpToolStripMenuItem;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.RadioButton tool1Radio;
+        private System.Windows.Forms.RadioButton tool0Radio;
+        private System.Windows.Forms.RadioButton tool2Radio;
+        private System.Windows.Forms.Label nodesSelectedLabel;
 
 
 

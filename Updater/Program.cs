@@ -40,11 +40,20 @@ namespace Updater
                     File.Move("files/editor.exe.dl", "files/editor.exe");
                     File.WriteAllText("files/version.txt", webVersion);
                 }
-                Process.Start(Directory.GetCurrentDirectory() + "/files/editor.exe");
             }
             catch
             {
                 Console.WriteLine("An error has occured during updating.");
+                Console.WriteLine("Press any key to launch anyway...");
+                Console.ReadKey();
+            }
+            try
+            {
+                Process.Start(Directory.GetCurrentDirectory() + "/files/editor.exe");
+            }
+            catch
+            {
+                Console.WriteLine("Program could not be started.");
                 Console.WriteLine("Press any key to exit...");
                 Console.ReadKey();
             }

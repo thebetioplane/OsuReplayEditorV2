@@ -1,2 +1,2 @@
 From this repository: https://github.com/smoogipooo/osu-Replay-API
-No modifications from original source
+Modified to dispose of FileStream (otherwise you can't save) and fixed the save method so it produces files aren't corrupted (the length of compressed replay data was corrected).

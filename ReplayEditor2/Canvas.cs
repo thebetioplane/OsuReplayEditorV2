@@ -26,8 +26,12 @@ namespace ReplayEditor2
         public IntPtr DrawingSurface { get; set; }
         private List<List<ReplayAPI.ReplayFrame>> replayFrames;
         private List<List<ReplayAPI.ReplayFrame>> nearbyFrames;
+        private List<ReplayAPI.ReplayFrame> selectedFrames;
         private List<BMAPI.v1.HitObjects.CircleObject> nearbyHitObjects;
         public BMAPI.v1.Beatmap Beatmap { get; set; }
+        private Rectangle ToolRect;
+        private MouseState LastMouseState;
+        private MouseState CurrentMouseState;
         private int approachRate = 0;
         private int circleDiameter = 0;
 
@@ -69,6 +73,7 @@ namespace ReplayEditor2
         public byte State_PlaybackFlow { get; set; }
         public int State_FadeTime { get; set; }
         public Color State_BackgroundColor { get; set; }
+        public byte State_ToolSelected { get; set; }
 
         public float Visual_BeatmapAR { get; set; }
         public bool Visual_HardRockAR { get; set; }
@@ -114,6 +119,8 @@ namespace ReplayEditor2
                 this.replayFrames.Add(null);
                 this.nearbyFrames.Add(new List<ReplayAPI.ReplayFrame>());
             }
+            this.ToolRect = new Rectangle(0, 0, 0, 0);
+            this.CurrentMouseState = Mouse.GetState();
             this.Beatmap = null;
             this.IsFixedTimeStep = false;
             this.graphics.PreparingDeviceSettings += graphics_PreparingDeviceSettings;
@@ -130,6 +137,7 @@ namespace ReplayEditor2
             this.State_PlaybackFlow = 0;
             this.State_FadeTime = 200;
             this.State_BackgroundColor = Color.Black;
+            this.State_ToolSelected = 0;
 
             this.Visual_BeatmapAR = 0.0f;
             this.Visual_HardRockAR = false;
@@ -302,14 +310,14 @@ namespace ReplayEditor2
                     {
                         int lowIndex = this.BinarySearchReplayFrame(j, (int)(this.songPlayer.SongTime) - this.State_TimeRange);
                         int highIndex = this.BinarySearchReplayFrame(j, (int)this.songPlayer.SongTime) + 1;
-                        for (int i = lowIndex; i <= highIndex; i ++)
+                        for (int i = lowIndex; i <= highIndex; i++)
                         {
                             this.nearbyFrames[j].Add(this.replayFrames[j][i]);
                         }
                     }
                     else if (this.State_PlaybackMode == 1)
                     {
-                        int nearestIndex = this.BinarySearchReplayFrame(j, (int)this.songPlayer.SongTime);                      
+                        int nearestIndex = this.BinarySearchReplayFrame(j, (int)this.songPlayer.SongTime);
                         this.nearbyFrames[j].Add(this.replayFrames[j][nearestIndex]);
                         if (nearestIndex + 1 < this.replayFrames[j].Count)
                         {
@@ -317,6 +325,39 @@ namespace ReplayEditor2
                         }
                     }
                 }
+            }
+            this.LastMouseState = this.CurrentMouseState;
+            this.CurrentMouseState = Mouse.GetState();
+            if (this.State_PlaybackMode == 0)
+            {
+                bool inBounds = this.CurrentMouseState.X >= 0 && this.CurrentMouseState.X <= this.Size.X && this.CurrentMouseState.Y >= 0 && this.CurrentMouseState.Y <= this.Size.Y;
+                if (this.LastMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Released && this.CurrentMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
+                {
+                    if (inBounds)
+                    {
+                        this.ToolRect.X = this.CurrentMouseState.X;
+                        this.ToolRect.Y = this.CurrentMouseState.Y;
+                    }
+                }
+                else if (this.LastMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && this.CurrentMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
+                {
+                    if (inBounds)
+                    {
+                        this.ToolRect.Width = this.CurrentMouseState.X - this.ToolRect.X;
+                        this.ToolRect.Height = this.CurrentMouseState.Y - this.ToolRect.Y;
+                    }
+                }
+                else if (this.LastMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && this.CurrentMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Released)
+                {
+                    this.ToolAction();
+                    this.ToolRect.Width = 0;
+                    this.ToolRect.Height = 0;
+                }
+            }
+            else
+            {
+                this.ToolRect.Width = 0;
+                this.ToolRect.Height = 0;
             }
             base.Update(gameTime);
         }
@@ -358,7 +399,7 @@ namespace ReplayEditor2
                         // fade out
                         alpha = 1 - ((diff + hitObjectLength) / -(float)this.State_FadeTime);
                     }
-                    else if (! hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Spinner) && diff >= this.approachRate && diff < this.approachRate + this.State_FadeTime)
+                    else if (!hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Spinner) && diff >= this.approachRate && diff < this.approachRate + this.State_FadeTime)
                     {
                         // fade in
                         alpha = 1 - (diff - this.approachRate) / (float)this.State_FadeTime;
@@ -411,9 +452,19 @@ namespace ReplayEditor2
                     ReplayAPI.ReplayFrame currentFrame = this.nearbyFrames[this.state_ReplaySelected][i];
                     float alpha = i / (float)this.nearbyFrames[this.state_ReplaySelected].Count;
                     currentPos = this.InflateVector(new Vector2(currentFrame.X, currentFrame.Y));
+                    bool selected = this.selectedFrames.Contains(currentFrame);
                     if (lastPos.X != -222)
                     {
-                        this.DrawLine(lastPos, currentPos, new Color(1.0f, 0.0f, 0.0f, alpha));
+                        Color linecolor;
+                        if (selected)
+                        {
+                            linecolor = Color.White;
+                        }
+                        else
+                        {
+                            linecolor = new Color(1.0f, 0.0f, 0.0f, alpha);
+                        }
+                        this.DrawLine(lastPos, currentPos, linecolor);
                     }
                     Color nodeColor = Color.Gray;
                     if (currentFrame.Keys.HasFlag(ReplayAPI.Keys.K1))
@@ -432,9 +483,16 @@ namespace ReplayEditor2
                     {
                         nodeColor = Color.Yellow;
                     }
-                    nodeColor.A = (byte)(alpha * 255);
+                    if (! selected)
+                    {
+                        nodeColor.A = (byte)(alpha * 255);
+                    }
                     this.spriteBatch.Draw(this.nodeTexture, currentPos - new Vector2(5, 5), nodeColor);
                     lastPos = currentPos;
+                }
+                if (this.ToolRect.Width != 0 && this.ToolRect.Height != 0)
+                {
+                    this.DrawTool();
                 }
             }
             else if (this.State_PlaybackMode == 1)
@@ -680,6 +738,18 @@ namespace ReplayEditor2
             }
         }
 
+        private void DrawBoxOutline(Rectangle rect, Color color)
+        {
+            Vector2 rp0 = new Vector2(rect.X, rect.Y);
+            Vector2 rp1 = new Vector2(rect.X + rect.Width, rect.Y);
+            Vector2 rp2 = new Vector2(rect.X + rect.Width, rect.Y + rect.Height);
+            Vector2 rp3 = new Vector2(rect.X, rect.Y + rect.Height);
+            this.DrawLine(rp0, rp1, color);
+            this.DrawLine(rp1, rp2, color);
+            this.DrawLine(rp2, rp3, color);
+            this.DrawLine(rp3, rp0, color);
+        }
+
         public void LoadReplay(ReplayAPI.Replay replay)
         {
             this.ShowHelp = 0;
@@ -799,6 +869,20 @@ namespace ReplayEditor2
             }
         }
 
+        private Vector2 DeflateVector(Vector2 vector, bool flipWhenHardrock = false)
+        {
+            // takes a vector for the whole canvas and puts it with respect to x: 0 - 512 and y: 0 - 384
+            // opposite of inflate vector
+            if (this.Visual_MapInvert && flipWhenHardrock)
+            {
+                return new Vector2(vector.X / this.Size.X * 512f, (this.Size.Y - vector.Y) / this.Size.Y * 384f);
+            }
+            else
+            {
+                return new Vector2(vector.X / this.Size.X * 512f, vector.Y / this.Size.Y * 384f);
+            }
+        }
+
         public void SetSongTimePercent(float percent)
         {
             // for when timeline is clicked, sets the song time in ms from percentage into the song
@@ -847,6 +931,82 @@ namespace ReplayEditor2
             else
             {
                 this.songPlayer.JumpTo(value);
+            }
+        }
+
+        private void ToolAction()
+        {
+            Vector2 a = new Vector2(this.ToolRect.X, this.ToolRect.Y);
+            Vector2 b = new Vector2(this.ToolRect.X + this.ToolRect.Width, this.ToolRect.Y + this.ToolRect.Height);
+            if (this.ToolRect.Width < 0)
+            {
+                this.ToolRect.X += this.ToolRect.Width;
+                this.ToolRect.Width *= -1;
+            }
+            if (this.ToolRect.Height < 0)
+            {
+                this.ToolRect.Y += this.ToolRect.Height;
+                this.ToolRect.Height *= -1;
+            }
+            if (this.State_ToolSelected == 0)
+            {
+                this.selectedFrames = new List<ReplayAPI.ReplayFrame>();
+                for (int i = 0; i < this.nearbyFrames[this.state_ReplaySelected].Count; i++)
+                {
+                    ReplayAPI.ReplayFrame frame = this.nearbyFrames[this.state_ReplaySelected][i];
+                    Vector2 frameCoor = this.InflateVector(new Vector2(frame.X, frame.Y));
+                    if (frameCoor.X >= this.ToolRect.X && frameCoor.X < this.ToolRect.X + this.ToolRect.Width && frameCoor.Y >= this.ToolRect.Y && frameCoor.Y < this.ToolRect.Y + this.ToolRect.Height)
+                    {
+                        this.selectedFrames.Add(frame);
+                    }
+                }
+                MainForm.self.SetNumberSelectedLabel(this.selectedFrames.Count);
+            }
+            else if (this.State_ToolSelected == 1)
+            {
+                Vector2 displace = this.DeflateVector(b - a);
+                for (int i = 0; i < this.selectedFrames.Count; i++)
+                {
+                    ReplayAPI.ReplayFrame item = this.selectedFrames[i];
+                    int k = this.replayFrames[this.State_ReplaySelected].IndexOf(item);
+                    if (k >= 0)
+                    {
+                        ReplayAPI.ReplayFrame dup = new ReplayAPI.ReplayFrame();
+                        dup.X = item.X + displace.X;
+                        dup.Y = item.Y + displace.Y;
+                        dup.Keys = item.Keys;
+                        dup.Time = item.Time;
+                        dup.TimeDiff = item.TimeDiff;
+                        this.replayFrames[this.State_ReplaySelected][k] = dup;
+                        this.selectedFrames[i] = dup;
+                    }
+                }
+            }
+            else if (this.State_ToolSelected == 2)
+            {
+
+            }
+        }
+
+        private void DrawTool()
+        {
+            Vector2 a = new Vector2(this.ToolRect.X, this.ToolRect.Y);
+            Vector2 b = new Vector2(this.ToolRect.X + this.ToolRect.Width, this.ToolRect.Y + this.ToolRect.Height);
+            if (this.State_ToolSelected == 0)
+            {
+                this.DrawBoxOutline(this.ToolRect, Color.CornflowerBlue);
+            }
+            else if (this.State_ToolSelected == 1)
+            {
+                this.DrawLine(a, b, Color.CornflowerBlue);
+            }
+            else if (this.State_ToolSelected == 2)
+            {
+                float o = (Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y)) / 10f;
+                this.DrawLine(a + new Vector2(o, o), b, Color.CornflowerBlue);
+                this.DrawLine(a + new Vector2(-o, o), b, Color.CornflowerBlue);
+                this.DrawLine(a + new Vector2(o, -o), b, Color.CornflowerBlue);
+                this.DrawLine(a + new Vector2(-o, -o), b, Color.CornflowerBlue);
             }
         }
     }

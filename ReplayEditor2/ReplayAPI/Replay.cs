@@ -41,11 +41,14 @@ namespace ReplayAPI
         public Replay(string replayFile, bool fullLoad = false)
         {
             Filename = replayFile;
-            replayReader = new BinaryReader(new FileStream(replayFile, FileMode.Open, FileAccess.Read, FileShare.Read));
-
-            loadHeader();
-            if (fullLoad)
-                Load();
+            using (replayReader = new BinaryReader(new FileStream(replayFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
+            {
+                loadHeader();
+                if (fullLoad)
+                {
+                    Load();
+                }
+            }
         }
 
         private void loadHeader()
@@ -185,15 +188,13 @@ namespace ReplayAPI
                         ms.Write(rawBytes, 0, rawBytes.Length);
 
                         MemoryStream codedStream = LZMACoder.Compress(ms);
+
                         byte[] rawBytesCompressed = new byte[codedStream.Length];
                         codedStream.Read(rawBytesCompressed, 0, rawBytesCompressed.Length);
-
-                        bw.Write(rawBytesCompressed.Length);
+                        bw.Write(rawBytesCompressed.Length - 8);
                         bw.Write(rawBytesCompressed);
                     }
                 }
-
-                //Todo: There are some extra bytes here
             }
         }
 

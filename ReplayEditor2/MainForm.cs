@@ -198,6 +198,18 @@ namespace ReplayEditor2
             {
                 this.speed400Radio.Checked = true;
             }
+            else if (keyData == Keys.F1)
+            {
+                this.tool0Radio.Checked = true;
+            }
+            else if (keyData == Keys.F2)
+            {
+                this.tool1Radio.Checked = true;
+            }
+            else if (keyData == Keys.F3)
+            {
+                this.tool2Radio.Checked = true;
+            }
             
             return base.ProcessCmdKey(ref msg, keyData);
         }
@@ -613,9 +625,72 @@ namespace ReplayEditor2
             this.SetSettings(Program.LoadSettings());
         }
 
-        private void quickLoadToolStripMenuItem_Click(object sender, EventArgs e)
+        private void sourceCodeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("What this will do is display a list of replays saved in your replays folder. Eventually.", ":(");
+            System.Diagnostics.Process.Start("https://github.com/thebetioplane/OsuReplayEditorV2");
+        }
+
+        private void quickLoadToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
+        {
+            this.quickLoadToolStripMenuItem.DropDownItems.Clear();
+            if (Directory.Exists(MainForm.Path_Replays))
+            {
+                string[] files = Directory.GetFiles(MainForm.Path_Replays, "*.osr", SearchOption.TopDirectoryOnly);
+                foreach (string fullpath in files)
+                {
+                    string[] split = fullpath.Split('\\');
+                    this.quickLoadToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(split[split.Length - 1]));
+                }
+            }
+            else
+            {
+                MainForm.ErrorMessage("You do not have a replay folder specified. You can change this in the settings file.");
+            }
+        }
+
+        private void quickLoadToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            this.quickLoadToolStripMenuItem.DropDownItems.Clear();
+            this.Open(Path.Combine(MainForm.Path_Replays, e.ClickedItem.Text));
+        }
+
+        private void onscreenHelpCtrlHToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Canvas.ShowHelp = 2;
+        }
+
+        private void tool0Radio_CheckedChanged(object sender, EventArgs e)
+        {
+            if (this.tool0Radio.Checked)
+            {
+                this.Canvas.State_ToolSelected = 0;
+            }
+        }
+
+        private void tool1Radio_CheckedChanged(object sender, EventArgs e)
+        {
+            if (this.tool1Radio.Checked)
+            {
+                this.Canvas.State_ToolSelected = 1;
+            }
+        }
+
+        private void tool2Radio_CheckedChanged(object sender, EventArgs e)
+        {
+            if (this.tool2Radio.Checked)
+            {
+                this.Canvas.State_ToolSelected = 2;
+            }
+        }
+
+        public void SetNumberSelectedLabel(int n)
+        {
+            string s = "s";
+            if (n == 1)
+            {
+                s = "";
+            }
+            this.nodesSelectedLabel.Text = String.Format("{0} Node{1} Selected", n, s);
         }
     }
 }
