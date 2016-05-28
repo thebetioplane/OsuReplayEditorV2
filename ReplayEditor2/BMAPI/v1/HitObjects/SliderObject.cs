@@ -18,6 +18,15 @@ namespace BMAPI.v1.HitObjects
         public new SliderType Type = SliderType.Linear;
         public List<Point2> Points = new List<Point2>();
         public int RepeatCount { get; set; }
+        public float PixelLength
+        {
+            get { return this._PixelLength; }
+            set
+            {
+                this._PixelLength = value;
+            }
+        }
+        private float _PixelLength = 0f;
         public float Velocity { get; set; }
         public float MaxPoints { get; set; }
         private List<DistanceTime> distanceTime = new List<DistanceTime>();
@@ -94,11 +103,7 @@ namespace BMAPI.v1.HitObjects
         {
             if (this.Type == SliderType.Linear)
             {
-                if (this.Points.Count == 2)
-                {
-                    return Points[0].Lerp(Points[1], T);
-                }
-                return LinearInterpolate(Points, T * this.SegmentLength);
+                return Points[0].Lerp(Points[1], T);
             }
             return UniformSpeed(Points, this.Length / this.RepeatCount * T);
         }
@@ -174,12 +179,19 @@ namespace BMAPI.v1.HitObjects
                 Point2 a = PassThroughInterpolate(f);
                 Point2 b = PassThroughInterpolate(f + prec);
                 float distance = (float)Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
-                DistanceTime dt = new DistanceTime();
-                sum += distance;
-                dt.distance = sum;
-                dt.t = f;
-                dt.point = b;
-                this.distanceTime.Add(dt);
+                if (this.PixelLength > 0 && distance + sum <= this.PixelLength)
+                {
+                    DistanceTime dt = new DistanceTime();
+                    sum += distance;
+                    dt.distance = sum;
+                    dt.t = f;
+                    dt.point = b;
+                    this.distanceTime.Add(dt);
+                }
+                else
+                {
+                    break;
+                }
             }
             return sum;
         }
@@ -248,12 +260,19 @@ namespace BMAPI.v1.HitObjects
                 Point2 a = BezierInterpolate(Pts, f);
                 Point2 b = BezierInterpolate(Pts, f + prec);
                 float distance = (float)Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
-                DistanceTime dt = new DistanceTime();
-                sum += distance;
-                dt.distance = sum;
-                dt.t = f;
-                dt.point = b;
-                this.distanceTime.Add(dt);
+                if (this.PixelLength > 0 && distance + sum <= this.PixelLength)
+                {
+                    DistanceTime dt = new DistanceTime();
+                    sum += distance;
+                    dt.distance = sum;
+                    dt.t = f;
+                    dt.point = b;
+                    this.distanceTime.Add(dt);
+                }
+                else
+                {
+                    break;
+                }
             }
             return sum;
         }
@@ -263,7 +282,15 @@ namespace BMAPI.v1.HitObjects
             float sum = 0;
             for (int i = 0; i < Pts.Count - 1; i++)
             {
-                sum += Pts[i].DistanceTo(Pts[i + 1]);
+                float distance = Pts[i].DistanceTo(Pts[i + 1]);
+                if (this.PixelLength > 0 && distance + sum <= this.PixelLength)
+                {
+                    sum += distance;
+                }
+                else
+                {
+                    break;
+                }
             }
             return sum;
         }
@@ -403,17 +430,6 @@ namespace BMAPI.v1.HitObjects
             spline.Sort();
             SplineFunction it = spline.LastOrDefault(sf => sf.T <= T);
             return it.Eval(T);
-        }
-
-        public override bool ContainsPoint(Point2 Point)
-        {
-            return ContainsPoint(Point, 0);
-        }
-
-        public bool ContainsPoint(Point2 Point, int Time)
-        {
-            Point2 pAtTime = PositionAtTime(Time);
-            return Math.Sqrt(Math.Pow(Point.X - pAtTime.X, 2) + Math.Pow(Point.Y - pAtTime.Y, 2)) <= Radius;            
         }
     }
 }

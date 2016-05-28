@@ -380,6 +380,7 @@ namespace BMAPI.v1
                                 ((SliderObject)newObject).Points.Add(p);
                             }
                             ((SliderObject)newObject).RepeatCount = Convert.ToInt32(reSplit[6]);
+                            ((SliderObject)newObject).PixelLength = Convert.ToSingle(reSplit[7]);
                             float tempMaxPoints;
                             if (float.TryParse(reSplit[7], out tempMaxPoints))
                             {

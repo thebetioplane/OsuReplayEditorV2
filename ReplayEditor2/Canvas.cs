@@ -388,7 +388,7 @@ namespace ReplayEditor2
                 else if (hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Slider))
                 {
                     hitObjectAsSlider = (BMAPI.v1.HitObjects.SliderObject)hitObject;
-                    hitObjectLength = (int)(hitObjectAsSlider.SegmentEndTime(1) - hitObjectAsSlider.StartTime);
+                    hitObjectLength = (int)((hitObjectAsSlider.SegmentEndTime(1) - hitObjectAsSlider.StartTime) * hitObjectAsSlider.RepeatCount);
                     //hitObjectLength = 500;
                 }
                 // for reference: this.approachRate is the time in ms it takes for approach circle to close
@@ -635,8 +635,7 @@ namespace ReplayEditor2
         private void DrawSlider(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha)
         {
             this.DrawSliderBody(hitObject, alpha, this.circleDiameter / 2);
-
-            float time = (float)(this.songPlayer.SongTime - hitObject.StartTime) / (float)(hitObject.SegmentEndTime(1) - hitObject.StartTime);
+            float time = (float)(this.songPlayer.SongTime - hitObject.StartTime) / (float)((hitObject.SegmentEndTime(1) - hitObject.StartTime) * hitObject.RepeatCount);
             if (time < 0)
             {
                 return;
@@ -644,6 +643,20 @@ namespace ReplayEditor2
             else if (time > 1)
             {
                 time = 1;
+            }
+            time *= hitObject.RepeatCount;
+            if (time > 1)
+            {
+                int order = 0;
+                while (time > 1)
+                {
+                    time -= 1;
+                    order++;
+                }
+                if (order % 2 != 0)
+                {
+                    time = 1 - time;
+                }
             }
             Vector2 pos = this.InflateVector(new Vector2(hitObject.PositionAtTime(time).X, hitObject.PositionAtTime(time).Y), true);
             // 128x128 is the size of the sprite image for hitcircles
@@ -936,8 +949,11 @@ namespace ReplayEditor2
 
         private void ToolAction()
         {
+            // a is the point first clicked
             Vector2 a = new Vector2(this.ToolRect.X, this.ToolRect.Y);
+            // b is the point released
             Vector2 b = new Vector2(this.ToolRect.X + this.ToolRect.Width, this.ToolRect.Y + this.ToolRect.Height);
+            // this always sets the rectangle so that the top left coords is the x and y, even if dragged from bottom right to top left
             if (this.ToolRect.Width < 0)
             {
                 this.ToolRect.X += this.ToolRect.Width;
@@ -990,7 +1006,9 @@ namespace ReplayEditor2
 
         private void DrawTool()
         {
+            // a is the point first clicked
             Vector2 a = new Vector2(this.ToolRect.X, this.ToolRect.Y);
+            // b is the point released
             Vector2 b = new Vector2(this.ToolRect.X + this.ToolRect.Width, this.ToolRect.Y + this.ToolRect.Height);
             if (this.State_ToolSelected == 0)
             {
