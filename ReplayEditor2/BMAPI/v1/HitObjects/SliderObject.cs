@@ -101,10 +101,12 @@ namespace BMAPI.v1.HitObjects
         }
         public Point2 PositionAtTime(float T)
         {
+            /*
             if (this.Type == SliderType.Linear)
             {
                 return Points[0].Lerp(Points[1], T);
             }
+             */
             return UniformSpeed(Points, this.Length / this.RepeatCount * T);
         }
 

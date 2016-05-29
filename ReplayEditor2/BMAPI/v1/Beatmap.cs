@@ -362,7 +362,8 @@ namespace BMAPI.v1
                                     ((SliderObject)newObject).Type = SliderType.CSpline;
                                     break;
                                 case "L":
-                                    ((SliderObject)newObject).Type = SliderType.Linear;
+                                    //((SliderObject)newObject).Type = SliderType.Linear;
+                                    ((SliderObject)newObject).Type = SliderType.Bezier;
                                     break;
                                 case "P":
                                     ((SliderObject)newObject).Type = SliderType.PSpline;
