@@ -121,7 +121,7 @@ namespace BMAPI.v1.HitObjects
                 float end = (Points[2] - center).Atan2();
                 float twopi = (float)(2 * Math.PI);
                 Point2 basepoint = (Points[0] + Points[1] + Points[2]) / 2f;
-                if (isClockwise(start, middle) || isClockwise(middle, end))
+                if (isClockwise(start, middle) && isClockwise(middle, end))
                 {
                     while (end < start)
                     {
@@ -181,7 +181,7 @@ namespace BMAPI.v1.HitObjects
                 Point2 a = PassThroughInterpolate(f);
                 Point2 b = PassThroughInterpolate(f + prec);
                 float distance = (float)Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
-                if (this.PixelLength > 0 && distance + sum <= this.PixelLength)
+                if (sum == 0 || (this.PixelLength > 0 && distance + sum <= this.PixelLength))
                 {
                     DistanceTime dt = new DistanceTime();
                     sum += distance;
