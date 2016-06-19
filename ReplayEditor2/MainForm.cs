@@ -624,7 +624,14 @@ namespace ReplayEditor2
 
         private void reloadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.SetSettings(Program.LoadSettings());
+            try
+            {
+                this.SetSettings(Program.LoadSettings());
+            }
+            catch
+            {
+                MainForm.ErrorMessage("The settings file was deleted. A new one will be created when you relaunch the editor.");
+            }
         }
 
         private void sourceCodeToolStripMenuItem_Click(object sender, EventArgs e)

@@ -117,11 +117,10 @@ namespace BMAPI.v1.HitObjects
                 Point2 center = this.circleCenter(Points[0], Points[1], Points[2]);
                 float radius = Points[0].DistanceTo(center);
                 float start = (Points[0] - center).Atan2();
-                float middle = (Points[1] - center).Atan2();
+                //float middle = (Points[1] - center).Atan2();
                 float end = (Points[2] - center).Atan2();
                 float twopi = (float)(2 * Math.PI);
-                Point2 basepoint = (Points[0] + Points[1] + Points[2]) / 2f;
-                if (isClockwise(start, middle) && isClockwise(middle, end))
+                if (isClockwise(Points[0], Points[1], Points[2]))
                 {
                     while (end < start)
                     {
@@ -144,11 +143,9 @@ namespace BMAPI.v1.HitObjects
             }
         }
 
-        private bool isClockwise(float a, float b)
+        private bool isClockwise(Point2 a, Point2 b, Point2 c)
         {
-            float pi = (float)Math.PI;
-            float twopi = 2f * pi;
-            return (a - b + twopi) % twopi > pi;
+            return a.X * b.Y - b.X * a.Y + b.X * c.Y - c.X * b.Y + c.X * a.Y - a.X * c.Y > 0;
         }
 
         private Point2 circleCenter(Point2 A, Point2 B, Point2 C)
