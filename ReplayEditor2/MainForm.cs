@@ -241,6 +241,7 @@ namespace ReplayEditor2
             }
             else
             {
+                this.Text = "Saving...";
                 try
                 {
                     this.CurrentReplays[this.Canvas.State_ReplaySelected].Save(CurrentReplays[this.Canvas.State_ReplaySelected].Filename);
@@ -249,6 +250,7 @@ namespace ReplayEditor2
                 {
                     MainForm.ErrorMessage(e.Message);
                 }
+                this.UpdateTitle();
             }
         }
 
@@ -691,6 +693,13 @@ namespace ReplayEditor2
                 s = "";
             }
             this.nodesSelectedLabel.Text = String.Format("{0} Node{1} Selected", n, s);
+        }
+
+        public void UpdateFromMetadata(ReplayAPI.Replay replay)
+        {
+            this.Canvas.ApplyMods(replay);
+            this.CurrentReplays[this.Canvas.State_ReplaySelected] = replay;
+            this.UpdateTitle();
         }
     }
 }

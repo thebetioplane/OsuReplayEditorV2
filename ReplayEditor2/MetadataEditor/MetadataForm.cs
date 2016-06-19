@@ -159,7 +159,7 @@ namespace ReplayEditor2.MetadataEditor
             this.replay.MaxCombo = this.maxCombo.Value;
             this.replay.IsPerfect = ! Convert.ToBoolean(this.isPerfect.Value);
             this.replay.Mods = this.modValue;
-            MainForm.self.Canvas.ApplyMods(this.replay);
+            MainForm.self.UpdateFromMetadata(this.replay);
         }
 
         private Button PlaceButtonAt(int x, int row, string text)

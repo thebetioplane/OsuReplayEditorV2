@@ -330,26 +330,22 @@ namespace ReplayEditor2
             this.CurrentMouseState = Mouse.GetState();
             if (this.State_PlaybackMode == 0)
             {
-                bool inBounds = this.CurrentMouseState.X >= 0 && this.CurrentMouseState.X <= this.Size.X && this.CurrentMouseState.Y >= 0 && this.CurrentMouseState.Y <= this.Size.Y;
                 if (this.LastMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Released && this.CurrentMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
                 {
-                    if (inBounds)
-                    {
-                        this.ToolRect.X = this.CurrentMouseState.X;
-                        this.ToolRect.Y = this.CurrentMouseState.Y;
-                    }
+                    this.ToolRect.X = this.CurrentMouseState.X;
+                    this.ToolRect.Y = this.CurrentMouseState.Y;
                 }
                 else if (this.LastMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && this.CurrentMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
                 {
-                    if (inBounds)
-                    {
-                        this.ToolRect.Width = this.CurrentMouseState.X - this.ToolRect.X;
-                        this.ToolRect.Height = this.CurrentMouseState.Y - this.ToolRect.Y;
-                    }
+                    this.ToolRect.Width = this.CurrentMouseState.X - this.ToolRect.X;
+                    this.ToolRect.Height = this.CurrentMouseState.Y - this.ToolRect.Y;
                 }
                 else if (this.LastMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && this.CurrentMouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Released)
                 {
-                    this.ToolAction();
+                    if (this.ToolRect.X >= 0 && this.ToolRect.X <= this.Size.X && this.ToolRect.Y >= 0 && this.ToolRect.Y <= this.Size.Y)
+                    {
+                        this.ToolAction();
+                    }
                     this.ToolRect.Width = 0;
                     this.ToolRect.Height = 0;
                 }
@@ -452,7 +448,14 @@ namespace ReplayEditor2
                     ReplayAPI.ReplayFrame currentFrame = this.nearbyFrames[this.state_ReplaySelected][i];
                     float alpha = i / (float)this.nearbyFrames[this.state_ReplaySelected].Count;
                     currentPos = this.InflateVector(new Vector2(currentFrame.X, currentFrame.Y));
-                    bool selected = this.selectedFrames.Contains(currentFrame);
+                    bool selected = false;
+                    try
+                    {
+                        selected = this.selectedFrames.Contains(currentFrame);
+                    }
+                    catch
+                    {
+                    }
                     if (lastPos.X != -222)
                     {
                         Color linecolor;
@@ -1000,7 +1003,26 @@ namespace ReplayEditor2
             }
             else if (this.State_ToolSelected == 2)
             {
-
+                Vector2 from = this.DeflateVector(a);
+                Vector2 to = this.DeflateVector(b);
+                for (int i = 0; i < this.selectedFrames.Count; i++)
+                {
+                    ReplayAPI.ReplayFrame item = this.selectedFrames[i];
+                    int k = this.replayFrames[this.State_ReplaySelected].IndexOf(item);
+                    if (k >= 0)
+                    {
+                        ReplayAPI.ReplayFrame dup = new ReplayAPI.ReplayFrame();
+                        float distance = (float)Math.Max(1, Math.Sqrt(Math.Pow(from.X - item.X, 2) + Math.Pow(from.Y - item.Y, 2)));
+                        float reduction = (float)Math.Min(1, distance / 50);
+                        dup.X = item.X + (to.X - item.X) * (1 - reduction);
+                        dup.Y = item.Y + (to.Y - item.Y) * (1 - reduction);
+                        dup.Keys = item.Keys;
+                        dup.Time = item.Time;
+                        dup.TimeDiff = item.TimeDiff;
+                        this.replayFrames[this.State_ReplaySelected][k] = dup;
+                        this.selectedFrames[i] = dup;
+                    }
+                }
             }
         }
 

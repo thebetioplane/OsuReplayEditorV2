@@ -26,6 +26,12 @@ namespace ReplayEditor2.MetadataEditor
         public StringTextBox()
         {
             this.Width = 300;
+            this.LostFocus += OnChange;
+        }
+
+        private void OnChange(object sender, EventArgs e)
+        {
+            this.value = this.Text;
         }
     }
 }
