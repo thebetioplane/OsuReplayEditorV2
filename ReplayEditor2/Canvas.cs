@@ -361,7 +361,7 @@ namespace ReplayEditor2
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(this.State_BackgroundColor);
-            this.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+            this.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied);
             for (int b = this.nearbyHitObjects.Count - 1; b >= 0; b--)
             {
                 BMAPI.v1.HitObjects.CircleObject hitObject = this.nearbyHitObjects[b];
@@ -384,7 +384,7 @@ namespace ReplayEditor2
                 else if (hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Slider))
                 {
                     hitObjectAsSlider = (BMAPI.v1.HitObjects.SliderObject)hitObject;
-                    hitObjectLength = (int)((hitObjectAsSlider.SegmentEndTime(1) - hitObjectAsSlider.StartTime) * hitObjectAsSlider.RepeatCount);
+                    hitObjectLength = (int)((hitObjectAsSlider.SegmentEndTime - hitObjectAsSlider.StartTime) * hitObjectAsSlider.RepeatCount);
                     //hitObjectLength = 500;
                 }
                 // for reference: this.approachRate is the time in ms it takes for approach circle to close
@@ -423,13 +423,13 @@ namespace ReplayEditor2
                     }
                     if (hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Circle))
                     {
-                        this.DrawHitcircle(hitObject, alpha);
+                        this.DrawHitcircle(hitObject, alpha, b);
                         this.DrawApproachCircle(hitObject, alpha, approachCircleValue);
                     }
                     else if (hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Slider))
                     {
-                        this.DrawSlider(hitObjectAsSlider, alpha);
-                        this.DrawHitcircle(hitObject, alpha);
+                        this.DrawSlider(hitObjectAsSlider, alpha, b);
+                        this.DrawHitcircle(hitObject, alpha, b);
                         this.DrawApproachCircle(hitObject, alpha, approachCircleValue);
                     }
                     else if (hitObject.Type.HasFlag(BMAPI.v1.HitObjectType.Spinner))
@@ -449,12 +449,9 @@ namespace ReplayEditor2
                     float alpha = i / (float)this.nearbyFrames[this.state_ReplaySelected].Count;
                     currentPos = this.InflateVector(new Vector2(currentFrame.X, currentFrame.Y));
                     bool selected = false;
-                    try
+                    if (this.selectedFrames != null)
                     {
                         selected = this.selectedFrames.Contains(currentFrame);
-                    }
-                    catch
-                    {
                     }
                     if (lastPos.X != -222)
                     {
@@ -578,19 +575,20 @@ namespace ReplayEditor2
             spriteBatch.Draw(this.lineTexture, r, null, color, angle, Vector2.Zero, SpriteEffects.None, 0);
         }
 
-        private void DrawHitcircle(BMAPI.v1.HitObjects.CircleObject hitObject, float alpha)
+        private void DrawHitcircle(BMAPI.v1.HitObjects.CircleObject hitObject, float alpha, int zindex)
         {
             int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
             Vector2 pos = this.InflateVector(hitObject.Location.ToVector2(), true);
-            this.DrawHitcircle(pos, diameter, alpha);
+            this.DrawHitcircle(pos, diameter, alpha, zindex);
         }
 
-        private void DrawHitcircle(Vector2 pos, int diameter, float alpha)
+        private void DrawHitcircle(Vector2 pos, int diameter, float alpha, int zindex)
         {
             Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
             rect.X -= rect.Width / 2;
             rect.Y -= rect.Height / 2;
-            this.spriteBatch.Draw(this.hitCircleTexture, rect, new Color(1.0f, 1.0f, 1.0f, alpha));
+            float depth = zindex / 1000.0f;
+            this.spriteBatch.Draw(this.hitCircleTexture, rect, null, new Color(1.0f, 1.0f, 1.0f, alpha), 0f, Vector2.Zero, SpriteEffects.None, 0.1f + depth);
         }
 
         private void DrawApproachCircle(BMAPI.v1.HitObjects.CircleObject hitObject, float alpha, float value)
@@ -604,7 +602,7 @@ namespace ReplayEditor2
             Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
             rect.X -= rect.Width / 2;
             rect.Y -= rect.Height / 2;
-            this.spriteBatch.Draw(this.approachCircleTexture, rect, new Color(1.0f, 1.0f, 1.0f, alpha));
+            this.spriteBatch.Draw(this.approachCircleTexture, rect, null, new Color(1.0f, 1.0f, 1.0f, alpha), 0f, Vector2.Zero, SpriteEffects.None, 0);
         }
 
         private void DrawSpinnerApproachCircle(BMAPI.v1.HitObjects.SpinnerObject hitObject, float alpha, float value)
@@ -622,7 +620,7 @@ namespace ReplayEditor2
             Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
             rect.X -= rect.Width / 2;
             rect.Y -= rect.Height / 2;
-            this.spriteBatch.Draw(this.spinnerTexture, rect, new Color(1.0f, 1.0f, 1.0f, alpha));
+            this.spriteBatch.Draw(this.spinnerTexture, rect, null, new Color(1.0f, 1.0f, 1.0f, alpha), 0f, Vector2.Zero, SpriteEffects.None, 0.0f);
         }
 
         private void DrawSpinner(BMAPI.v1.HitObjects.SpinnerObject hitObject, float alpha)
@@ -632,13 +630,13 @@ namespace ReplayEditor2
             Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
             rect.X -= rect.Width / 2;
             rect.Y -= rect.Height / 2;
-            this.spriteBatch.Draw(this.spinnerTexture, rect, new Color(1.0f, 1.0f, 1.0f, alpha));
+            this.spriteBatch.Draw(this.spinnerTexture, rect, null, new Color(1.0f, 1.0f, 1.0f, alpha), 0f, Vector2.Zero, SpriteEffects.None, 0.1f);
         }
 
-        private void DrawSlider(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha)
+        private void DrawSlider(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha, int zindex)
         {
-            this.DrawSliderBody(hitObject, alpha, this.circleDiameter / 2);
-            float time = (float)(this.songPlayer.SongTime - hitObject.StartTime) / (float)((hitObject.SegmentEndTime(1) - hitObject.StartTime) * hitObject.RepeatCount);
+            this.DrawSliderBody(hitObject, alpha, this.circleDiameter / 2, zindex);
+            float time = (float)(this.songPlayer.SongTime - hitObject.StartTime) / (float)((hitObject.SegmentEndTime - hitObject.StartTime) * hitObject.RepeatCount);
             if (time < 0)
             {
                 return;
@@ -661,21 +659,21 @@ namespace ReplayEditor2
                     time = 1 - time;
                 }
             }
-            Vector2 pos = this.InflateVector(new Vector2(hitObject.PositionAtTime(time).X, hitObject.PositionAtTime(time).Y), true);
+            Vector2 pos = this.InflateVector(hitObject.PositionAtTime(time), true);
             // 128x128 is the size of the sprite image for hitcircles
             int diameter = (int)(this.circleDiameter / 128f * this.sliderFollowCircleTexture.Width * this.Size.X / 512f);
             Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
             rect.X -= rect.Width / 2;
             rect.Y -= rect.Height / 2;
-            this.spriteBatch.Draw(this.sliderFollowCircleTexture, rect, new Color(1.0f, 1.0f, 1.0f, alpha));
+            this.spriteBatch.Draw(this.sliderFollowCircleTexture, rect, null, new Color(1.0f, 1.0f, 1.0f, alpha), 0f, Vector2.Zero, SpriteEffects.None, 0f);
         }
 
-        private void DrawSliderBody(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha, int radius)
+        private void DrawSliderBody(BMAPI.v1.HitObjects.SliderObject hitObject, float alpha, int radius, int zindex)
         {
-            float smallLength = hitObject.Length / hitObject.RepeatCount;
+            float smallLength = hitObject.TotalLength;
             Color color = Color.White;
             color.A = (byte)(255 * alpha);
-
+            float depth = zindex / 1000.0f;
             if (hitObject.Type == BMAPI.v1.SliderType.Linear)
             {
                 for (float i = 0; i < smallLength + 10; i += 10)
@@ -684,30 +682,14 @@ namespace ReplayEditor2
                     {
                         i = smallLength;
                     }
-                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
+                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;
                     rect.Y -= rect.Height / 2;
-                    this.spriteBatch.Draw(this.sliderEdgeTexture, rect, color);
-                    if (i == smallLength)
-                    {
-                        break;
-                    }
-                }
-                for (float i = 0; i < smallLength + 10; i += 10)
-                {
-                    if (i > smallLength)
-                    {
-                        i = smallLength;
-                    }
-                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength).ToVector2(), true);
-                    int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
-                    Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
-                    rect.X -= rect.Width / 2;
-                    rect.Y -= rect.Height / 2;
+                    this.spriteBatch.Draw(this.sliderEdgeTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.5f + depth);
                     color.A = 255;
-                    this.spriteBatch.Draw(this.sliderBodyTexture, rect, color);
+                    this.spriteBatch.Draw(this.sliderBodyTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.4f + depth);
                     if (i == smallLength)
                     {
                         break;
@@ -722,30 +704,14 @@ namespace ReplayEditor2
                     {
                         i = smallLength;
                     }
-                    Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
+                    Vector2 pos = this.InflateVector(hitObject.PositionAtDistance(i), true);
                     int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
                     Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
                     rect.X -= rect.Width / 2;
                     rect.Y -= rect.Height / 2;
-                    this.spriteBatch.Draw(this.sliderEdgeTexture, rect, color);
-                    if (i == smallLength)
-                    {
-                        break;
-                    }
-                }
-                for (float i = 0; i < smallLength + 10; i += 10)
-                {
-                    if (i > smallLength)
-                    {
-                        i = smallLength;
-                    }
-                    Vector2 pos = this.InflateVector(hitObject.UniformSpeed(hitObject.Points, i).ToVector2(), true);
-                    int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
-                    Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
-                    rect.X -= rect.Width / 2;
-                    rect.Y -= rect.Height / 2;
+                    this.spriteBatch.Draw(this.sliderEdgeTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.5f + depth);
                     color.A = 255;
-                    this.spriteBatch.Draw(this.sliderBodyTexture, rect, color);
+                    this.spriteBatch.Draw(this.sliderBodyTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.4f + depth);
                     if (i == smallLength)
                     {
                         break;

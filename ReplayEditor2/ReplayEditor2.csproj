@@ -63,6 +63,11 @@
     <Compile Include="BMAPI\v1\HitObjects\SpinnerObject.cs" />
     <Compile Include="BMAPI\v1\TimingPoint.cs" />
     <Compile Include="Canvas.cs" />
+    <Compile Include="Curves\Bezier.cs" />
+    <Compile Include="Curves\Catmull.cs" />
+    <Compile Include="Curves\Circle.cs" />
+    <Compile Include="Curves\Curve.cs" />
+    <Compile Include="Curves\Line.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

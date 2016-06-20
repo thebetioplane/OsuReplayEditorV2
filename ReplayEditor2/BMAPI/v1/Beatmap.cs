@@ -387,6 +387,7 @@ namespace BMAPI.v1
                             {
                                 ((SliderObject)newObject).MaxPoints = tempMaxPoints;
                             }
+                            ((SliderObject)newObject).CreateCurves();
                         }
                         if ((newObject.Type & HitObjectType.Spinner) > 0)
                         {
