@@ -42,6 +42,8 @@ namespace BMAPI.v1.HitObjects
         }
         public float Velocity { get; set; }
         public float MaxPoints { get; set; }
+        // a list of every curve in the slider
+        // a new curve is denoted by a red slider control point in the editor
         public List<Curve> Curves { get; set; }
 
         public void CreateCurves()
@@ -56,6 +58,8 @@ namespace BMAPI.v1.HitObjects
             Curve currentCurve = null;
             for (int i = 0; i < n; i++)
             {
+                // if there are two points in a row that are the same control point then it is a red control point
+                // and a new curve exists
                 if (lastPoint.Equals(this.Points[i]))
                 {
                     currentCurve = this.CreateCurve();
@@ -65,15 +69,17 @@ namespace BMAPI.v1.HitObjects
                 lastPoint = this.Points[i];
             }
             this._TotalLength = 0;
-            int lastN = this.Curves.Count - 1;
-            for (int i = 0; i < lastN; i++)
+            int lastIndex = this.Curves.Count - 1;
+            for (int i = 0; i < lastIndex; i++)
             {
                 this.Curves[i].Init();
                 this._TotalLength += this.Curves[i].Length;
             }
-            if (lastN >= 0)
+            if (lastIndex >= 0)
             {
-                Curve lastCurve = this.Curves[lastN];
+                // the last curve will be affected by the 'pixel length' property of sliders which
+                // limit how long it is (so that way it ends in time with the beat, not geometrically)
+                Curve lastCurve = this.Curves[lastIndex];
                 lastCurve.PixelLength = this.PixelLength - this._TotalLength;
                 lastCurve.Init();
                 this._TotalLength += lastCurve.Length;
@@ -96,6 +102,9 @@ namespace BMAPI.v1.HitObjects
             }
             else if (this.Points.Count > 3)
             {
+                // sometimes there will be sliders that say that they are using the passthrough
+                // algorithm but have more than 3 points
+                // in these cases we just use bezier algorithm
                 return new Bezier();
             }
             switch (this.Type)
@@ -123,8 +132,10 @@ namespace BMAPI.v1.HitObjects
             float sum = 0;
             foreach (Curve curve in this.Curves)
             {
+                // find out which curve's algorithm is being used at a distance
                 if (sum + curve.Length >= d)
                 {
+                    // put distance relative to the curve's start point
                     return curve.PositionAtDistance(d - sum);
                 }
                 sum += curve.Length;

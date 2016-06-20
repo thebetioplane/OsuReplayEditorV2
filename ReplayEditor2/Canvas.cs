@@ -672,50 +672,26 @@ namespace ReplayEditor2
         {
             float smallLength = hitObject.TotalLength;
             Color color = Color.White;
-            color.A = (byte)(255 * alpha);
-            float depth = zindex / 1000.0f;
-            if (hitObject.Type == BMAPI.v1.SliderType.Linear)
+            float depthHigh = (zindex * 2 + 1) / 1000.0f;
+            float depthLow = (zindex * 2) / 1000.0f;
+            for (float i = 0; i < smallLength + 10; i += 10)
             {
-                for (float i = 0; i < smallLength + 10; i += 10)
+                if (i > smallLength)
                 {
-                    if (i > smallLength)
-                    {
-                        i = smallLength;
-                    }
-                    Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength), true);
-                    int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
-                    Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
-                    rect.X -= rect.Width / 2;
-                    rect.Y -= rect.Height / 2;
-                    this.spriteBatch.Draw(this.sliderEdgeTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.5f + depth);
-                    color.A = 255;
-                    this.spriteBatch.Draw(this.sliderBodyTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.4f + depth);
-                    if (i == smallLength)
-                    {
-                        break;
-                    }
+                    i = smallLength;
                 }
-            }
-            else
-            {
-                for (float i = 0; i < smallLength + 10; i += 10)
+                Vector2 pos = this.InflateVector(hitObject.PositionAtTime(i / smallLength), true);
+                int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
+                Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
+                rect.X -= rect.Width / 2;
+                rect.Y -= rect.Height / 2;
+                color.A = (byte)(255 * alpha);
+                this.spriteBatch.Draw(this.sliderEdgeTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.4f + depthHigh);
+                color.A = 255;
+                this.spriteBatch.Draw(this.sliderBodyTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.4f + depthLow);
+                if (i == smallLength)
                 {
-                    if (i > smallLength)
-                    {
-                        i = smallLength;
-                    }
-                    Vector2 pos = this.InflateVector(hitObject.PositionAtDistance(i), true);
-                    int diameter = (int)(this.circleDiameter * this.Size.X / 512f);
-                    Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, diameter, diameter);
-                    rect.X -= rect.Width / 2;
-                    rect.Y -= rect.Height / 2;
-                    this.spriteBatch.Draw(this.sliderEdgeTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.5f + depth);
-                    color.A = 255;
-                    this.spriteBatch.Draw(this.sliderBodyTexture, rect, null, color, 0f, Vector2.Zero, SpriteEffects.None, 0.4f + depth);
-                    if (i == smallLength)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
         }
