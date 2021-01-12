@@ -1,4 +1,3 @@
-###Temporary Repository
-Things like the updater and stuff are barebones and will be redone once this project doesn't look like garbage.
-###[Download.zip](https://github.com/thebetioplane/OsuReplayEditorV2/raw/master/Download/Download.zip)
-This .zip file contains everything you need to run it and will update the .exe to the current one in this repository. It will not update images or the updater itself. As stated above this updater will become obsolete soon enough.
+I am archiving this repository, it has been replaced by https://github.com/thebetioplane/osuReplayEditorV3
+
+If you still want this version: [Download.zip](https://github.com/thebetioplane/OsuReplayEditorV2/raw/master/Download/Download.zip)
